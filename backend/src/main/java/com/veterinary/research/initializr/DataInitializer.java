@@ -24,7 +24,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedUsers() {
-        if (userRepository.count() == 0) {
+        if (!userRepository.existsByUsername("admin")) {
             User admin = User.builder()
                     .username("admin")
                     .email("admin@veterinary.com")
@@ -35,6 +35,20 @@ public class DataInitializer implements CommandLineRunner {
                     .build();
             userRepository.save(admin);
             log.info("Default admin user created: admin / admin123");
+        }
+
+        // Seed Zenve Data Centre official account
+        if (!userRepository.existsByUsername("zenvedacentre@gmail.com") && !userRepository.existsByEmail("zenvedacentre@gmail.com")) {
+            User zenveUser = User.builder()
+                    .username("zenvedacentre@gmail.com")
+                    .email("zenvedacentre@gmail.com")
+                    .password(passwordEncoder.encode("Zenve@111"))
+                    .fullName("Zenve Data Centre Administrator")
+                    .role("ADMIN")
+                    .active(true)
+                    .build();
+            userRepository.save(zenveUser);
+            log.info("Zenve official user seeded: zenvedacentre@gmail.com / Zenve@111");
         }
     }
 }
