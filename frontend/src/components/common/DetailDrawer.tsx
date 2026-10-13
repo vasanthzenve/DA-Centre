@@ -39,16 +39,16 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-950/50 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-slate-950/60 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-xl bg-white dark:bg-slate-900 shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col">
+        <div className="w-screen max-w-xl bg-white/90 dark:bg-[#0A0F1D]/90 backdrop-blur-2xl shadow-2xl border-l border-white/80 dark:border-slate-800/80 flex flex-col">
           {/* Header */}
-          <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between bg-slate-50/70 dark:bg-slate-850/70">
+          <div className="px-6 py-5 border-b border-white/60 dark:border-slate-800/80 flex items-start justify-between bg-slate-50/60 dark:bg-slate-800/50 backdrop-blur-md">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                 Detailed Record
               </span>
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-1">{title}</h2>
@@ -58,7 +58,7 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-white/80 dark:hover:bg-slate-700/80 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>

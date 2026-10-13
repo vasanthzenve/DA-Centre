@@ -128,7 +128,7 @@ export const ReportsPage: React.FC = () => {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="p-4 bg-white/75 dark:bg-[#0A0F1D]/75 backdrop-blur-2xl rounded-3xl border border-white/80 dark:border-slate-800/80 shadow-md shadow-slate-200/30 dark:shadow-black/40 hover:-translate-y-0.5 hover:shadow-lg transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Entities</span>
             <Building2 className="w-4 h-4 text-emerald-500" />
@@ -146,7 +146,7 @@ export const ReportsPage: React.FC = () => {
           </span>
         </div>
 
-        <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="p-4 bg-white/75 dark:bg-[#0A0F1D]/75 backdrop-blur-2xl rounded-3xl border border-white/80 dark:border-slate-800/80 shadow-md shadow-slate-200/30 dark:shadow-black/40 hover:-translate-y-0.5 hover:shadow-lg transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Veterinary Care</span>
             <Stethoscope className="w-4 h-4 text-cyan-500" />
@@ -159,7 +159,7 @@ export const ReportsPage: React.FC = () => {
           </span>
         </div>
 
-        <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="p-4 bg-white/75 dark:bg-[#0A0F1D]/75 backdrop-blur-2xl rounded-3xl border border-white/80 dark:border-slate-800/80 shadow-md shadow-slate-200/30 dark:shadow-black/40 hover:-translate-y-0.5 hover:shadow-lg transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Marketplace Catalog</span>
             <ShoppingBag className="w-4 h-4 text-amber-500" />
@@ -172,7 +172,7 @@ export const ReportsPage: React.FC = () => {
           </span>
         </div>
 
-        <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="p-4 bg-white/75 dark:bg-[#0A0F1D]/75 backdrop-blur-2xl rounded-3xl border border-white/80 dark:border-slate-800/80 shadow-md shadow-slate-200/30 dark:shadow-black/40 hover:-translate-y-0.5 hover:shadow-lg transition-all">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Support &amp; Welfare</span>
             <HeartHandshake className="w-4 h-4 text-rose-500" />
@@ -189,7 +189,7 @@ export const ReportsPage: React.FC = () => {
       {/* Main Charts & Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Research by State */}
-        <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="p-5 bg-white/75 dark:bg-[#0A0F1D]/75 backdrop-blur-2xl rounded-3xl border border-white/80 dark:border-slate-800/80 shadow-lg shadow-slate-200/30 dark:shadow-black/40">
           <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-4">
             Market Research Geographic Density
           </h3>
@@ -215,7 +215,7 @@ export const ReportsPage: React.FC = () => {
         </div>
 
         {/* Doctor Specialties */}
-        <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="p-5 bg-white/75 dark:bg-[#0A0F1D]/75 backdrop-blur-2xl rounded-3xl border border-white/80 dark:border-slate-800/80 shadow-lg shadow-slate-200/30 dark:shadow-black/40">
           <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-4">
             Clinical Specialist Distribution
           </h3>
@@ -244,7 +244,7 @@ export const ReportsPage: React.FC = () => {
       </div>
 
       {/* Summary Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="bg-white/75 dark:bg-[#0A0F1D]/75 backdrop-blur-2xl rounded-3xl border border-white/80 dark:border-slate-800/80 shadow-lg shadow-slate-200/30 dark:shadow-black/40 overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
             System Database Audit Summary

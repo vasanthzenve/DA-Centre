@@ -18,8 +18,11 @@ export interface DataTableProps<T> {
   data: T[];
   isLoading?: boolean;
   selectedIds?: number[];
+  isAllMatchingSelected?: boolean;
   onSelectRow?: (id: number) => void;
   onSelectAll?: (selectAll: boolean) => void;
+  onSelectAllMatching?: () => void;
+  onClearAllMatching?: () => void;
   onView?: (row: T) => void;
   onEdit?: (row: T) => void;
   onDelete?: (row: T) => void;
@@ -53,8 +56,11 @@ export function DataTable<T extends { id?: number }>({
   data,
   isLoading,
   selectedIds = [],
+  isAllMatchingSelected = false,
   onSelectRow,
   onSelectAll,
+  onSelectAllMatching,
+  onClearAllMatching,
   onView,
   onEdit,
   onDelete,
@@ -74,7 +80,7 @@ export function DataTable<T extends { id?: number }>({
   emptyTitle,
   emptyDescription,
   onAddClick,
-  virtualize = true,
+  virtualize = false,
   rowHeight = 52,
   maxHeight = 650,
 }: DataTableProps<T>) {
@@ -95,13 +101,13 @@ export function DataTable<T extends { id?: number }>({
     }
   }, [handleScroll]);
 
-  // Reset scroll when page changes
+  // Reset scroll when page, sort, pageSize or data changes
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = 0;
       setScrollTop(0);
     }
-  }, [currentPage, currentSort]);
+  }, [currentPage, currentSort, pageSize, data?.length]);
 
   if (isLoading) {
     return <LoadingSkeleton rows={pageSize > 10 ? 10 : pageSize} />;
@@ -118,7 +124,7 @@ export function DataTable<T extends { id?: number }>({
     );
   }
 
-  const isAllSelected = data.length > 0 && data.every((row) => row.id && selectedIds.includes(row.id));
+  const isAllSelected = isAllMatchingSelected || (data.length > 0 && data.every((row) => row.id && selectedIds.includes(row.id)));
   const [sortField, sortDir] = currentSort.split(',');
 
   const handleHeaderClick = (col: Column<T>) => {
@@ -133,9 +139,9 @@ export function DataTable<T extends { id?: number }>({
     }
   };
 
-  // Virtual Window Calculation (Only renders visible rows in DOM)
+  // Virtual Window Calculation (Only renders visible rows in DOM if virtualize is explicitly enabled for large lists)
   const totalRows = data.length;
-  const isVirtualized = virtualize && totalRows > 15;
+  const isVirtualized = virtualize && totalRows > 150;
   const overscan = 4;
   const startIndex = isVirtualized ? Math.max(0, Math.floor(scrollTop / rowHeight) - overscan) : 0;
   const visibleCount = isVirtualized ? Math.ceil(maxHeight / rowHeight) : totalRows;
@@ -146,14 +152,40 @@ export function DataTable<T extends { id?: number }>({
   const bottomPadding = isVirtualized ? Math.max(0, (totalRows - 1 - endIndex) * rowHeight) : 0;
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+    <div className="bg-white/80 dark:bg-[#0A0F1D]/80 backdrop-blur-2xl rounded-3xl shadow-xl shadow-slate-200/40 dark:shadow-black/50 border border-white/80 dark:border-slate-800/80 overflow-hidden transition-all">
       <div
         ref={containerRef}
         style={isVirtualized ? { maxHeight: `${maxHeight}px`, overflowY: 'auto' } : undefined}
         className="overflow-x-auto relative"
       >
+        {isAllSelected && totalElements !== undefined && totalElements > data.length && (
+          <div className="bg-amber-500/15 dark:bg-amber-950/60 border-b border-amber-500/30 px-4 py-2.5 text-xs text-amber-900 dark:text-amber-200 flex items-center justify-center gap-2 flex-wrap backdrop-blur-md">
+            <span>
+              {isAllMatchingSelected
+                ? `All ${totalElements.toLocaleString()} records in this registry are selected.`
+                : `All ${data.length} records on this page are selected.`}
+            </span>
+            {!isAllMatchingSelected && onSelectAllMatching ? (
+              <button
+                type="button"
+                onClick={onSelectAllMatching}
+                className="font-bold underline text-amber-700 dark:text-amber-300 hover:text-amber-950 dark:hover:text-amber-100 cursor-pointer"
+              >
+                Select all {totalElements.toLocaleString()} records in this registry
+              </button>
+            ) : onClearAllMatching ? (
+              <button
+                type="button"
+                onClick={onClearAllMatching}
+                className="font-bold underline text-amber-700 dark:text-amber-300 hover:text-amber-950 dark:hover:text-amber-100 cursor-pointer"
+              >
+                Clear selection
+              </button>
+            ) : null}
+          </div>
+        )}
         <table className="w-full text-left text-sm border-collapse">
-          <thead className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-850/95 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <thead className="sticky top-0 z-10 bg-slate-100/80 dark:bg-slate-850/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-750/80 text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
             <tr>
               {onSelectRow && onSelectAll && (
                 <th className="p-4 w-10 text-center">
@@ -162,7 +194,7 @@ export function DataTable<T extends { id?: number }>({
                     checked={isAllSelected}
                     onChange={(e) => onSelectAll(e.target.checked)}
                     aria-label="Select all rows"
-                    className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 cursor-pointer"
+                    className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/30 dark:border-slate-700 dark:bg-slate-800 cursor-pointer"
                   />
                 </th>
               )}
@@ -176,7 +208,7 @@ export function DataTable<T extends { id?: number }>({
                     key={idx}
                     onClick={() => handleHeaderClick(col)}
                     className={`py-3.5 px-4 whitespace-nowrap select-none ${
-                      col.sortable ? 'cursor-pointer hover:text-emerald-600 transition-colors' : ''
+                      col.sortable ? 'cursor-pointer hover:text-blue-600 dark:hover:text-cyan-400 transition-colors' : ''
                     } ${col.className || ''}`}
                   >
                     <div className="flex items-center gap-1.5">
@@ -185,9 +217,9 @@ export function DataTable<T extends { id?: number }>({
                         <span className="text-slate-400">
                           {isCurrentSorted ? (
                             sortDir === 'asc' ? (
-                              <ArrowUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                              <ArrowUp className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
                             ) : (
-                              <ArrowDown className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                              <ArrowDown className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
                             )
                           ) : (
                             <ArrowUpDown className="w-3.5 h-3.5 opacity-40 hover:opacity-100" />
@@ -205,7 +237,7 @@ export function DataTable<T extends { id?: number }>({
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+          <tbody className="divide-y divide-slate-100/80 dark:divide-slate-800/60">
             {topPadding > 0 && (
               <tr>
                 <td style={{ height: `${topPadding}px` }} colSpan={columns.length + 2} />
@@ -220,8 +252,8 @@ export function DataTable<T extends { id?: number }>({
                 <tr
                   key={row.id || actualIndex}
                   style={isVirtualized ? { height: `${rowHeight}px` } : undefined}
-                  className={`transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-800/50 ${
-                    isSelected ? 'bg-emerald-50/40 dark:bg-emerald-950/20' : ''
+                  className={`transition-all duration-150 hover:bg-blue-50/50 dark:hover:bg-blue-950/25 ${
+                    isSelected ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border-l-4 border-emerald-500' : ''
                   }`}
                 >
                   {onSelectRow && (
@@ -231,7 +263,7 @@ export function DataTable<T extends { id?: number }>({
                         checked={isSelected}
                         onChange={() => row.id && onSelectRow(row.id)}
                         aria-label={`Select row ${row.id || actualIndex}`}
-                        className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 cursor-pointer"
+                        className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/30 dark:border-slate-700 dark:bg-slate-800 cursor-pointer"
                       />
                     </td>
                   )}
@@ -254,12 +286,12 @@ export function DataTable<T extends { id?: number }>({
 
                   {(onView || onEdit || onDelete) && (
                     <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-end gap-1.5">
                         {onView && (
                           <button
                             onClick={() => onView(row)}
                             title="View details"
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            className="p-1.5 rounded-xl text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/15 dark:hover:bg-emerald-500/20 transition-all hover:scale-105"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
@@ -268,7 +300,7 @@ export function DataTable<T extends { id?: number }>({
                           <button
                             onClick={() => onEdit(row)}
                             title="Edit"
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            className="p-1.5 rounded-xl text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-500/15 dark:hover:bg-blue-500/20 transition-all hover:scale-105"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
@@ -277,7 +309,7 @@ export function DataTable<T extends { id?: number }>({
                           <button
                             onClick={() => onDelete(row)}
                             title="Delete"
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/15 dark:hover:bg-rose-500/20 transition-all hover:scale-105"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

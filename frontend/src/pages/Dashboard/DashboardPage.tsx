@@ -361,12 +361,12 @@ export const DashboardPage: React.FC = () => {
         {kpis.map((kpi, idx) => (
           <div
             key={idx}
-            className="p-3.5 sm:p-4 bg-white dark:bg-slate-900 rounded-[22px] border border-slate-200/70 dark:border-slate-800 shadow-xs hover:shadow-md transition-all flex items-center justify-between group overflow-hidden"
+            className="p-3.5 sm:p-4 bg-white/75 dark:bg-[#0A0F1D]/75 backdrop-blur-2xl rounded-[24px] border border-white/80 dark:border-slate-800/80 shadow-md shadow-slate-200/30 dark:shadow-black/40 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 transition-all duration-200 flex items-center justify-between group overflow-hidden"
           >
             {/* Left: Squircle Icon, Label, Big Number */}
             <div className="flex items-center gap-3 min-w-0 pr-1">
               <div
-                className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105 ${kpi.bg}`}
+                className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105 shadow-2xs border border-white/50 dark:border-white/10 ${kpi.bg}`}
               >
                 {kpi.icon}
               </div>
@@ -393,10 +393,10 @@ export const DashboardPage: React.FC = () => {
       {/* =================================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Chart: Research by State */}
-        <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs min-w-0 overflow-hidden">
+        <div className="p-6 bg-white/75 dark:bg-[#0A0F1D]/75 backdrop-blur-2xl rounded-3xl border border-white/80 dark:border-slate-800/80 shadow-lg shadow-slate-200/30 dark:shadow-black/40 min-w-0 overflow-hidden">
           <div className="flex items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 flex items-center justify-center text-[#2563EB] flex-shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/15 dark:bg-blue-950/60 border border-blue-500/25 flex items-center justify-center text-[#2563EB] dark:text-blue-400 flex-shrink-0">
                 <BarChart3 className="w-5 h-5" />
               </div>
               <div className="min-w-0">
@@ -514,10 +514,10 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Right Chart: Hospitals by City */}
-        <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs min-w-0 overflow-hidden">
+        <div className="p-6 bg-white/75 dark:bg-[#0A0F1D]/75 backdrop-blur-2xl rounded-3xl border border-white/80 dark:border-slate-800/80 shadow-lg shadow-slate-200/30 dark:shadow-black/40 min-w-0 overflow-hidden">
           <div className="flex items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 flex items-center justify-center text-[#2563EB] flex-shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/15 dark:bg-blue-950/60 border border-blue-500/25 flex items-center justify-center text-[#2563EB] dark:text-blue-400 flex-shrink-0">
                 <Building2 className="w-5 h-5" />
               </div>
               <div className="min-w-0">

@@ -190,7 +190,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 bg-white dark:bg-slate-900 flex flex-col shadow-[2px_0_16px_rgba(0,0,0,0.04)] border-r border-slate-200/80 dark:border-slate-800 transition-all duration-300 ease-in-out select-none ${isCollapsed ? "w-20" : "w-72"
+        className={`fixed top-0 bottom-0 left-0 z-50 bg-white/75 dark:bg-[#0A0F1D]/75 backdrop-blur-2xl flex flex-col shadow-[4px_0_30px_rgba(0,0,0,0.03)] border-r border-white/60 dark:border-slate-800/80 transition-all duration-300 ease-in-out select-none ${isCollapsed ? "w-20" : "w-72"
           } ${isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
         {/* ================================================================= */}
@@ -202,7 +202,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="flex items-center gap-3 overflow-hidden cursor-pointer group"
           >
             {/* Blue Squircle Logo with chart line & bars */}
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-b from-[#2563EB] to-[#1D4ED8] flex items-center justify-center shadow-md shadow-blue-500/25 flex-shrink-0 group-hover:scale-[1.02] transition-transform">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#2563EB] to-[#1D4ED8] flex items-center justify-center shadow-lg shadow-blue-500/25 flex-shrink-0 group-hover:scale-[1.03] transition-transform">
               <svg
                 className="w-6 h-6 text-white"
                 viewBox="0 0 24 24"
@@ -263,7 +263,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* ================================================================= */}
         {!isCollapsed && (
           <div className="px-3 pb-3 flex-shrink-0">
-            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/90 dark:border-slate-750 focus-within:border-blue-500 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-2 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30 transition-all">
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-100/70 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/60 focus-within:border-blue-500 focus-within:bg-white/95 dark:focus-within:bg-slate-800/95 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
               <Search className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
               <input
                 ref={searchInputRef}
@@ -282,10 +282,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </button>
               ) : (
                 <div className="flex items-center gap-1 flex-shrink-0">
-                  <kbd className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-400 shadow-2xs">
+                  <kbd className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-white/80 dark:bg-slate-700/80 border border-slate-200 dark:border-slate-600 text-slate-400 shadow-2xs">
                     Ctrl
                   </kbd>
-                  <kbd className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-400 shadow-2xs">
+                  <kbd className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-white/80 dark:bg-slate-700/80 border border-slate-200 dark:border-slate-600 text-slate-400 shadow-2xs">
                     K
                   </kbd>
                 </div>
@@ -305,8 +305,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               end
               className={({ isActive }) =>
                 `group relative flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 ${isActive
-                  ? "bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white shadow-md shadow-blue-500/20"
-                  : "hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                  ? "bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white shadow-md shadow-blue-500/25"
+                  : "hover:bg-white/60 dark:hover:bg-slate-800/50 backdrop-blur-xs"
                 }`
               }
             >
@@ -315,7 +315,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <div
                     className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${isActive
                       ? "bg-white/20 text-white"
-                      : "bg-blue-50 dark:bg-blue-950/60 text-[#2563EB]"
+                      : "bg-blue-50/80 dark:bg-blue-950/60 text-[#2563EB]"
                       }`}
                   >
                     <Home className="w-5 h-5" />
@@ -440,17 +440,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }
                 }}
                 className={`group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 ${isCurrentActive("/marketplace")
-                  ? "bg-[#EEF5FF] dark:bg-blue-950/40"
-                  : "hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                  ? "bg-blue-500/10 dark:bg-blue-500/15 border border-blue-500/20 text-blue-700 dark:text-blue-300 shadow-2xs"
+                  : "hover:bg-white/60 dark:hover:bg-slate-800/50 border border-transparent"
                   }`}
               >
                 {/* Active Indicator Bar on Left */}
                 {isCurrentActive("/marketplace") && (
-                  <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[#2563EB] rounded-r-md" />
+                  <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-gradient-to-b from-[#2563EB] to-indigo-600 rounded-r-md shadow-[0_0_8px_rgba(37,99,235,0.4)]" />
                 )}
 
-                <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950/50 flex items-center justify-center flex-shrink-0">
-                  <ShoppingCart className="w-5 h-5 text-[#C2410C]" />
+                <div className="w-10 h-10 rounded-xl bg-orange-500/15 dark:bg-orange-950/60 border border-orange-500/25 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                  <ShoppingCart className="w-5 h-5 text-[#EA580C] dark:text-orange-400" />
                 </div>
 
                 {!isCollapsed && (
@@ -464,7 +464,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       >
                         Marketplace
                       </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FFF3E8] dark:bg-orange-950 text-[#EA580C] dark:text-orange-400 border border-orange-200/60 dark:border-orange-800/60">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500/15 dark:bg-orange-950/80 text-[#EA580C] dark:text-orange-300 border border-orange-500/25">
                         New
                       </span>
                     </div>
@@ -519,10 +519,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               label="Service Network"
               sub="Service Providers"
               isCollapsed={isCollapsed}
-              iconBg="bg-purple-50 dark:bg-purple-950/60"
+              iconBg="bg-purple-500/15 dark:bg-purple-950/60 border border-purple-500/25"
               icon={
                 <svg
-                  className="w-5 h-5 text-[#7C3AED]"
+                  className="w-5 h-5 text-[#9333EA] dark:text-purple-400"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -547,8 +547,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               label="Doctor Directory"
               sub="Veterinary Professionals"
               isCollapsed={isCollapsed}
-              iconBg="bg-rose-50 dark:bg-rose-950/60"
-              icon={<Stethoscope className="w-5 h-5 text-[#E11D48]" />}
+              iconBg="bg-rose-500/15 dark:bg-rose-950/60 border border-rose-500/25"
+              icon={<Stethoscope className="w-5 h-5 text-[#E11D48] dark:text-rose-400" />}
             />
           )}
 
@@ -559,8 +559,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               label="Welfare Network"
               sub="NGOs & Support Services"
               isCollapsed={isCollapsed}
-              iconBg="bg-pink-50 dark:bg-pink-950/60"
-              icon={<HeartHandshake className="w-5 h-5 text-[#DB2777]" />}
+              iconBg="bg-pink-500/15 dark:bg-pink-950/60 border border-pink-500/25"
+              icon={<HeartHandshake className="w-5 h-5 text-[#DB2777] dark:text-pink-400" />}
             />
           )}
 
@@ -592,17 +592,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }
                 }}
                 className={`group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 ${isCurrentActive("/excel-management")
-                  ? "bg-[#EEF5FF] dark:bg-blue-950/40"
-                  : "hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                  ? "bg-blue-500/10 dark:bg-blue-500/15 border border-blue-500/20 text-blue-700 dark:text-blue-300 shadow-2xs"
+                  : "hover:bg-white/60 dark:hover:bg-slate-800/50 border border-transparent"
                   }`}
               >
                 {/* Active Indicator Bar on Left */}
                 {isCurrentActive("/excel-management") && (
-                  <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[#2563EB] rounded-r-md" />
+                  <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-gradient-to-b from-[#2563EB] to-indigo-600 rounded-r-md shadow-[0_0_8px_rgba(37,99,235,0.4)]" />
                 )}
 
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center flex-shrink-0">
-                  <FileSpreadsheet className="w-5 h-5 text-[#059669]" />
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 dark:bg-emerald-950/60 border border-emerald-500/25 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                  <FileSpreadsheet className="w-5 h-5 text-[#059669] dark:text-emerald-400" />
                 </div>
 
                 {!isCollapsed && (
@@ -659,11 +659,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               label="Reports & BI"
               sub="Analytics & Insights"
               isCollapsed={isCollapsed}
-              iconBg="bg-blue-50 dark:bg-blue-950/60"
-              icon={<BarChart3 className="w-5 h-5 text-[#2563EB]" />}
+              iconBg="bg-blue-500/15 dark:bg-blue-950/60 border border-blue-500/25"
+              icon={<BarChart3 className="w-5 h-5 text-[#2563EB] dark:text-blue-400" />}
             />
           )}
-
 
           <div className="h-2" />
         </div>
@@ -673,7 +672,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* ================================================================= */}
         {!isCollapsed ? (
           <div className="mx-3.5 mb-3.5 mt-1 flex-shrink-0">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#EEF6FF] via-[#E8F2FF] to-[#D5E6FA] dark:from-slate-800 dark:via-slate-800/90 dark:to-slate-850 border border-[#BFDBFE]/70 dark:border-slate-700/60 p-3.5 shadow-2xs">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/80 via-blue-50/70 to-indigo-50/70 dark:from-slate-850/80 dark:via-slate-800/70 dark:to-indigo-950/40 backdrop-blur-xl border border-white/80 dark:border-slate-700/70 p-3.5 shadow-md shadow-blue-500/5">
               {/* Isometric 3D Server & Bar Chart Graphic on the right */}
               <div className="absolute -right-2 -bottom-2 w-36 h-28 pointer-events-none select-none opacity-85">
                 <IsometricServerGraphic />
@@ -684,7 +683,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
                   </span>
                   <span className="text-[12.5px] font-bold text-slate-800 dark:text-slate-100 tracking-tight">
                     Database Connected
@@ -731,7 +730,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           /* Collapsed Mini Database Indicator */
           <div className="flex items-center justify-center py-3.5 border-t border-slate-200/80 dark:border-slate-800">
             <div className="group relative">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-blue-50/80 dark:bg-blue-950/60 border border-blue-200/50 dark:border-blue-800/40 flex items-center justify-center">
                 <Database className="w-5 h-5 text-[#2563EB]" />
               </div>
               <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" />
@@ -772,8 +771,8 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
     to={to}
     className={({ isActive }) =>
       `group relative flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 ${isActive
-        ? "bg-[#EEF5FF] dark:bg-blue-950/40"
-        : "hover:bg-slate-50 dark:hover:bg-slate-800/60"
+        ? "bg-blue-500/10 dark:bg-blue-500/15 border border-blue-500/20 text-blue-700 dark:text-blue-300 shadow-2xs"
+        : "hover:bg-white/60 dark:hover:bg-slate-800/50 border border-transparent"
       }`
     }
   >
@@ -781,12 +780,12 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       <>
         {/* Active Indicator Bar on Left Edge */}
         {isActive && (
-          <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[#2563EB] rounded-r-md" />
+          <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-gradient-to-b from-[#2563EB] to-indigo-600 rounded-r-md shadow-[0_0_8px_rgba(37,99,235,0.4)]" />
         )}
 
         {/* Squircle Icon Container */}
         <div
-          className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105 ${iconBg}`}
+          className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105 shadow-2xs ${iconBg}`}
         >
           {icon}
         </div>
@@ -844,8 +843,8 @@ const SubLink: React.FC<{ to: string; children: React.ReactNode }> = ({
     to={to}
     className={({ isActive }) =>
       `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${isActive
-        ? "bg-[#EEF5FF] dark:bg-blue-950/40 text-[#2563EB] font-bold"
-        : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+        ? "bg-blue-500/10 dark:bg-blue-500/15 text-[#2563EB] dark:text-blue-400 font-bold border border-blue-500/20"
+        : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white/60 dark:hover:bg-slate-800/50"
       }`
     }
   >

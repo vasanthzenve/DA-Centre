@@ -38,17 +38,17 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         <button
           onClick={onClose}
           disabled={isLoading}
-          className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors"
+          className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-slate-100/80 hover:bg-slate-200/80 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 rounded-xl transition-all"
         >
           Cancel
         </button>
         <button
           onClick={onConfirm}
           disabled={isLoading}
-          className={`px-4 py-2 text-sm font-medium text-white rounded-xl shadow-sm transition-colors flex items-center gap-2 ${
+          className={`px-4 py-2 text-sm font-bold text-white rounded-xl shadow-md transition-all flex items-center gap-2 ${
             confirmVariant === 'danger'
-              ? 'bg-rose-600 hover:bg-rose-700'
-              : 'bg-emerald-600 hover:bg-emerald-700'
+              ? 'bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 shadow-rose-500/25'
+              : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-emerald-500/25'
           }`}
         >
           {isLoading && (

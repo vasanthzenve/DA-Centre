@@ -19,6 +19,7 @@ import { DataTable, Column } from '../../components/common/DataTable';
 import { Modal } from '../../components/common/Modal';
 import { DetailDrawer } from '../../components/common/DetailDrawer';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
+import { BulkDeleteDialog } from '../../components/common/BulkDeleteDialog';
 import { ExcelImportModal } from '../../components/excel/ExcelImportModal';
 import { ExcelExportModal } from '../../components/excel/ExcelExportModal';
 import { useToast } from '../../components/common/Toast';
@@ -64,12 +65,14 @@ export const VeterinaryEcosystemPage: React.FC = () => {
   const [pageSize, setPageSize] = useState(20);
   const [currentSort, setCurrentSort] = useState('id,desc');
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [isAllMatchingSelected, setIsAllMatchingSelected] = useState(false);
 
   const [isAddEditOpen, setIsAddEditOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<VeterinaryEcosystem | null>(null);
   const [viewingItem, setViewingItem] = useState<VeterinaryEcosystem | null>(null);
   const [deletingItem, setDeletingItem] = useState<VeterinaryEcosystem | null>(null);
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
 
@@ -82,10 +85,11 @@ export const VeterinaryEcosystemPage: React.FC = () => {
     resolver: zodResolver(schema) as any,
   });
 
-  // Reset page when debounced search or filters change
+  // Reset page and selection when debounced search, filters or pageSize change
   useEffect(() => {
     setCurrentPage(0);
-  }, [debouncedSearch, filters]);
+    setIsAllMatchingSelected(false);
+  }, [debouncedSearch, filters, pageSize]);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -233,16 +237,37 @@ export const VeterinaryEcosystemPage: React.FC = () => {
     }
   };
 
-  const handleBulkDelete = async () => {
-    if (selectedIds.length === 0) return;
+  const handleBulkDelete = async (idsOverride?: number[], deleteAll = false) => {
+    setIsBulkDeleting(true);
     try {
-      await veterinaryEcosystemService.bulkDelete(selectedIds);
-      toast.success(`Deleted ${selectedIds.length} hospitals successfully`);
+      if (deleteAll || isAllMatchingSelected) {
+        const res = await veterinaryEcosystemService.getAll({
+          page: 0,
+          size: 50000,
+          search: debouncedSearch,
+          ...filters,
+        });
+        const allIds = res.content.map((r: any) => r.id!).filter(Boolean);
+        if (allIds.length === 0) {
+          toast.error('No hospitals found to delete');
+          return;
+        }
+        await veterinaryEcosystemService.bulkDelete(allIds);
+        toast.success(`Deleted all ${allIds.length} hospitals successfully`);
+      } else {
+        const targetIds = (idsOverride && idsOverride.length > 0) ? idsOverride : selectedIds;
+        if (!targetIds || targetIds.length === 0) return;
+        await veterinaryEcosystemService.bulkDelete(targetIds);
+        toast.success(`Deleted ${targetIds.length} hospitals successfully`);
+      }
       setSelectedIds([]);
+      setIsAllMatchingSelected(false);
       setIsBulkDeleteOpen(false);
       fetchData();
     } catch (err: any) {
-      toast.error('Failed to delete hospitals');
+      toast.error(err.response?.data?.message || err.message || 'Failed to delete hospitals');
+    } finally {
+      setIsBulkDeleting(false);
     }
   };
 
@@ -387,20 +412,30 @@ export const VeterinaryEcosystemPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          {selectedIds.length > 0 && (
-            <button
-              onClick={() => setIsBulkDeleteOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              Delete Selected ({selectedIds.length})
-            </button>
-          )}
+          <button
+            onClick={() => setIsBulkDeleteOpen(true)}
+            disabled={!data || data.totalElements === 0}
+            title="Delete selected rows or bulk delete hospitals"
+            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-xs transition-all cursor-pointer ${
+              isAllMatchingSelected || selectedIds.length > 0
+                ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-500/20 shadow-md animate-pulse'
+                : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:hover:bg-rose-950/70 dark:text-rose-300 dark:border-rose-800/70'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>
+              {isAllMatchingSelected
+                ? `Bulk Delete All (${data?.totalElements?.toLocaleString()})`
+                : selectedIds.length > 0
+                ? `Bulk Delete (${selectedIds.length})`
+                : 'Bulk Delete'}
+            </span>
+          </button>
 
 
           <button
             onClick={handleOpenAdd}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/25 hover:shadow-lg hover:shadow-emerald-500/35 transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
             Add Hospital
@@ -409,7 +444,7 @@ export const VeterinaryEcosystemPage: React.FC = () => {
       </div>
 
       {/* Toolbar */}
-      <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+      <div className="p-4 bg-white/75 dark:bg-[#0A0F1D]/75 backdrop-blur-2xl rounded-3xl border border-white/80 dark:border-slate-800/80 shadow-lg shadow-slate-200/30 dark:shadow-black/40 space-y-3">
         <div className="flex flex-col md:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -418,7 +453,7 @@ export const VeterinaryEcosystemPage: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search hospitals by name, city, state, area, services, analyst, phone..."
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full pl-10 pr-4 py-2 bg-slate-100/70 dark:bg-slate-800/50 backdrop-blur-xs border border-slate-200/80 dark:border-slate-700/60 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:bg-white dark:focus:bg-slate-800/80 focus:ring-2 focus:ring-emerald-500/25"
             />
             {search && (
               <button
@@ -546,17 +581,27 @@ export const VeterinaryEcosystemPage: React.FC = () => {
         data={data?.content || []}
         isLoading={isLoading}
         selectedIds={selectedIds}
+        isAllMatchingSelected={isAllMatchingSelected}
         onSelectRow={(id) => {
+          setIsAllMatchingSelected(false);
           setSelectedIds((prev) =>
             prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
           );
         }}
         onSelectAll={(all) => {
+          setIsAllMatchingSelected(false);
           if (all && data) {
             setSelectedIds(data.content.map((r) => r.id!).filter(Boolean));
           } else {
             setSelectedIds([]);
           }
+        }}
+        onSelectAllMatching={() => {
+          setIsAllMatchingSelected(true);
+        }}
+        onClearAllMatching={() => {
+          setIsAllMatchingSelected(false);
+          setSelectedIds([]);
         }}
         onView={(row) => setViewingItem(row)}
         onEdit={(row) => handleOpenEdit(row)}
@@ -568,7 +613,10 @@ export const VeterinaryEcosystemPage: React.FC = () => {
         pageSize={pageSize}
         totalElements={data?.totalElements || 0}
         onPageChange={setCurrentPage}
-        onPageSizeChange={setPageSize}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(0);
+        }}
         nextCursor={data?.nextCursor}
         prevCursor={data?.prevCursor}
         hasMore={data?.hasMore}
@@ -877,12 +925,27 @@ export const VeterinaryEcosystemPage: React.FC = () => {
       />
 
       {/* Bulk Delete */}
-      <ConfirmDialog
+      <BulkDeleteDialog
         isOpen={isBulkDeleteOpen}
         onClose={() => setIsBulkDeleteOpen(false)}
-        onConfirm={handleBulkDelete}
-        title="Delete Selected Hospitals"
-        message={`Are you sure you want to delete ${selectedIds.length} selected hospitals? This action cannot be undone.`}
+        selectedCount={isAllMatchingSelected ? (data?.totalElements || 0) : selectedIds.length}
+        currentPageCount={data?.content?.length || 0}
+        totalElements={data?.totalElements}
+        moduleName="Veterinary Hospitals"
+        onConfirmDelete={handleBulkDelete}
+        currentPageIds={data?.content?.map((r) => r.id!).filter(Boolean) || []}
+        onSelectAllCurrentPage={() => {
+          setIsAllMatchingSelected(false);
+          if (data?.content) {
+            setSelectedIds(data.content.map((r) => r.id!).filter(Boolean));
+          }
+        }}
+        onClearSelection={() => {
+          setIsAllMatchingSelected(false);
+          setSelectedIds([]);
+        }}
+        isAllMatchingSelected={isAllMatchingSelected}
+        isLoading={isBulkDeleting}
       />
 
       {/* Excel Import Modal */}
