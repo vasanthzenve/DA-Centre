@@ -3,7 +3,9 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from '../layouts/MainLayout';
 import { LoginPage } from '../pages/Auth/LoginPage';
 import { ProtectedRoute } from './ProtectedRoute';
+import { AdminRoute } from './AdminRoute';
 import { DashboardPage } from '../pages/Dashboard/DashboardPage';
+import { AdminDashboardPage } from '../pages/Admin/AdminDashboardPage';
 import { MarketResearchPage } from '../pages/MarketResearch/MarketResearchPage';
 import { VeterinaryEcosystemPage } from '../pages/VeterinaryEcosystem/VeterinaryEcosystemPage';
 import { HygienePage } from '../pages/Marketplace/HygienePage';
@@ -19,6 +21,11 @@ export const AppRoutes: React.FC = () => {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+
+      {/* Admin Console Route - Protected strictly for Admin only */}
+      <Route element={<AdminRoute />}>
+        <Route path="/admin" element={<AdminDashboardPage />} />
+      </Route>
 
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<MainLayout />}>
@@ -40,4 +47,3 @@ export const AppRoutes: React.FC = () => {
     </Routes>
   );
 };
-

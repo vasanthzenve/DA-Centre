@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Menu, Sun, Moon, Search, Plus, Sparkles, User, Bell, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, Sun, Moon, Search, Plus, Sparkles, User, Bell, LogOut, ChevronDown, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
@@ -131,6 +131,17 @@ export const Header: React.FC<HeaderProps> = ({
           <span className="hidden sm:inline">Excel Center</span>
         </button>
 
+        {/* Admin Console shortcut for administrators */}
+        {(user?.role?.includes('ADMIN') || user?.email === 'dacentreadmin@gmail.com') && (
+          <button
+            onClick={() => navigate('/admin')}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl bg-cyan-500/10 dark:bg-cyan-500/15 border border-cyan-500/25 hover:border-cyan-500/40 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/20 backdrop-blur-md transition-all shadow-2xs cursor-pointer"
+          >
+            <ShieldCheck className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+            <span className="hidden sm:inline">Admin Console</span>
+          </button>
+        )}
+
         {/* Dark/Light mode toggle */}
         <button
           onClick={onToggleDarkMode}
@@ -150,21 +161,21 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 via-teal-500 to-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-xs">
                 {user?.fullName
                   ? user.fullName
-                      .split(' ')
-                      .map((n) => n[0])
-                      .join('')
-                      .slice(0, 2)
-                      .toUpperCase()
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase()
                   : 'ZC'}
               </div>
               <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" />
             </div>
             <div className="hidden sm:flex flex-col text-left">
               <span className="text-xs font-bold text-slate-900 dark:text-slate-100 leading-tight truncate max-w-[120px]">
-                {user?.fullName || 'Zenve Analyst'}
+                {user?.fullName || 'DA Centre Admin'}
               </span>
               <span className="text-[10px] text-teal-600 dark:text-cyan-400 font-medium truncate max-w-[120px]">
-                {user?.email || 'zenvedacentre@gmail.com'}
+                {user?.email || 'dacentreadmin@gmail.com'}
               </span>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-0.5" />
@@ -175,15 +186,28 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="absolute right-0 mt-2 w-60 rounded-3xl bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-2xl border border-white/80 dark:border-slate-700/80 shadow-2xl py-2.5 z-50 animate-in fade-in zoom-in-95 duration-150">
               <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800/80">
                 <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                  {user?.fullName || 'Zenve Data Centre'}
+                  {user?.fullName || 'DA Centre Administrator'}
                 </div>
                 <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                  {user?.email || 'zenvedacentre@gmail.com'}
+                  {user?.email || 'dacentreadmin@gmail.com'}
                 </div>
                 <div className="mt-1.5 inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/15 text-teal-700 dark:text-cyan-300 border border-teal-500/25">
                   Role: {user?.role || 'ADMIN'}
                 </div>
               </div>
+
+              {(user?.role?.includes('ADMIN') || user?.email === 'dacentreadmin@gmail.com') && (
+                <button
+                  onClick={() => {
+                    setShowProfileMenu(false);
+                    navigate('/admin');
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-xs font-semibold text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50/80 dark:hover:bg-cyan-950/40 flex items-center gap-2 cursor-pointer transition-colors"
+                >
+                  <ShieldCheck className="w-4 h-4 text-cyan-500" />
+                  <span>Admin Console</span>
+                </button>
+              )}
 
               <button
                 onClick={() => {

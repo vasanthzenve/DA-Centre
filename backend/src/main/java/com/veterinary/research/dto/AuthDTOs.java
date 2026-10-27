@@ -32,11 +32,40 @@ public class AuthDTOs {
         @Email(message = "Invalid email format")
         private String email;
 
+        private String mobileNumber;
+
         @NotBlank(message = "Password is required")
         private String password;
 
         private String fullName;
         private String role;
+        private String department;
+        private String region;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class AdminCreateUserRequest {
+        @NotBlank(message = "Username is required")
+        private String username;
+
+        @NotBlank(message = "Email is required")
+        @Email(message = "Invalid email format")
+        private String email;
+
+        @NotBlank(message = "Password is required")
+        private String password;
+
+        private String fullName;
+        private String mobileNumber;
+        private String role;
+        private String accountStatus;
+        private Boolean active;
+        private String department;
+        private String region;
     }
 
     @Getter
@@ -48,9 +77,24 @@ public class AuthDTOs {
         private String token;
         private String type;
         private Long id;
+        private String customUserId;
         private String username;
         private String email;
+        private String mobileNumber;
         private String fullName;
         private String role;
+        private String accountStatus;
+        private boolean active;
+        private String message;
+        private String sessionToken;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HeartbeatRequest {
+        private String sessionToken;
+        private Long durationSeconds;
     }
 }

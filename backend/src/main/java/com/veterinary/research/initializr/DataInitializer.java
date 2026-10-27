@@ -8,6 +8,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -19,36 +21,39 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        seedUsers();
+        seedOfficialAdmin();
         log.info("Database bootstrap completed successfully.");
     }
 
-    private void seedUsers() {
-        if (!userRepository.existsByUsername("admin")) {
+    private void seedOfficialAdmin() {
+        // Seed or update the requested official Admin credentials:
+        // Mail ID: dacentreadmin@gmail.com
+        // Password: admin@zenve111
+        Optional<User> existingAdmin = userRepository.findByEmail("dacentreadmin@gmail.com");
+        if (existingAdmin.isPresent()) {
+            User admin = existingAdmin.get();
+            admin.setPassword(passwordEncoder.encode("admin@zenve111"));
+            admin.setRole("ADMIN");
+            admin.setAccountStatus("ACTIVE");
+            admin.setActive(true);
+            admin.setFullName("DA Centre Chief Administrator");
+            userRepository.save(admin);
+            log.info("Official Admin credentials updated: dacentreadmin@gmail.com / admin@zenve111");
+        } else {
             User admin = User.builder()
-                    .username("admin")
-                    .email("admin@veterinary.com")
-                    .password(passwordEncoder.encode("admin123"))
-                    .fullName("Chief Veterinary Analyst")
+                    .customUserId("DAC-ADM-001")
+                    .username("dacentreadmin@gmail.com")
+                    .email("dacentreadmin@gmail.com")
+                    .password(passwordEncoder.encode("admin@zenve111"))
+                    .fullName("DA Centre Chief Administrator")
                     .role("ADMIN")
+                    .accountStatus("ACTIVE")
                     .active(true)
+                    .department("Central Administration")
+                    .region("Global Headquarters")
                     .build();
             userRepository.save(admin);
-            log.info("Default admin user created: admin / admin123");
-        }
-
-        // Seed Zenve Data Centre official account
-        if (!userRepository.existsByUsername("zenvedacentre@gmail.com") && !userRepository.existsByEmail("zenvedacentre@gmail.com")) {
-            User zenveUser = User.builder()
-                    .username("zenvedacentre@gmail.com")
-                    .email("zenvedacentre@gmail.com")
-                    .password(passwordEncoder.encode("Zenve@111"))
-                    .fullName("Zenve Data Centre Administrator")
-                    .role("ADMIN")
-                    .active(true)
-                    .build();
-            userRepository.save(zenveUser);
-            log.info("Zenve official user seeded: zenvedacentre@gmail.com / Zenve@111");
+            log.info("Official Admin created: dacentreadmin@gmail.com / admin@zenve111");
         }
     }
 }
