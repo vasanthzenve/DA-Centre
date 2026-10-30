@@ -504,6 +504,14 @@ public class ExcelService {
             case "service_network" -> "service_network";
             case "doctors" -> "doctors";
             case "welfare_network" -> "welfare_network";
+            case "fashion_designers" -> "fashion_designers";
+            case "fashion_institutes" -> "fashion_institutes";
+            case "courier_tier1" -> "courier_tier1";
+            case "pet_manufacturers" -> "pet_manufacturers";
+            case "human_pet_labs" -> "human_pet_labs";
+            case "livestock" -> "livestock";
+            case "philippines_pet_products" -> "philippines_pet_products";
+            case "poultry" -> "poultry";
             default -> norm;
         };
     }

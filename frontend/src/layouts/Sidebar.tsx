@@ -16,7 +16,15 @@ import {
   Sparkles,
   UtensilsCrossed,
   Shirt,
+  Scissors,
+  GraduationCap,
+  Truck,
+  Factory,
   Database,
+  TestTube,
+  Beef,
+  Egg,
+  ShoppingBag,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -190,7 +198,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 bg-white/75 dark:bg-[#0A0F1D]/75 backdrop-blur-2xl flex flex-col shadow-[4px_0_30px_rgba(0,0,0,0.03)] border-r border-white/60 dark:border-slate-800/80 transition-all duration-300 ease-in-out select-none ${isCollapsed ? "w-20" : "w-72"
+        className={`fixed top-0 bottom-0 left-0 z-30 bg-white/75 dark:bg-[#0A0F1D]/75 backdrop-blur-2xl flex flex-col shadow-[4px_0_30px_rgba(0,0,0,0.03)] border-r border-white/60 dark:border-slate-800/80 transition-all duration-300 ease-in-out select-none ${isCollapsed ? "w-20" : "w-72"
           } ${isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
         {/* ================================================================= */}
@@ -507,6 +515,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <Shirt className="w-3.5 h-3.5 flex-shrink-0 text-indigo-500" />
                     <span>Accessories</span>
                   </SubLink>
+                  <SubLink to="/philippines-pet-products">
+                    <ShoppingBag className="w-3.5 h-3.5 flex-shrink-0 text-cyan-500" />
+                    <span>Philippines Pet Products</span>
+                  </SubLink>
                 </div>
               )}
             </div>
@@ -564,7 +576,167 @@ export const Sidebar: React.FC<SidebarProps> = ({
             />
           )}
 
+                    {/* =============================================================== */}
+          {/* SECTION: FASHION & DESIGN                                       */}
           {/* =============================================================== */}
+          <div className="flex items-center gap-2 px-3 pt-3.5 pb-1">
+            {!isCollapsed ? (
+              <>
+                <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">
+                  FASHION & DESIGN
+                </span>
+                <div className="flex-1 h-px bg-slate-200/80 dark:bg-slate-800" />
+              </>
+            ) : (
+              <div className="w-full h-px bg-slate-200/80 dark:bg-slate-800 my-1" />
+            )}
+          </div>
+
+          {/* Fashion Designers */}
+          {matchesSearch("Fashion Designers", "Couture & Studios") && (
+            <SidebarItem
+              to="/fashion-designers"
+              label="Fashion Designers"
+              sub="Couture & Studios"
+              isCollapsed={isCollapsed}
+              iconBg="bg-rose-500/15 dark:bg-rose-950/60 border border-rose-500/25"
+              icon={<Scissors className="w-5 h-5 text-[#E11D48] dark:text-rose-400" />}
+            />
+          )}
+
+          {/* Diagnostic Labs */}
+          {matchesSearch("Diagnostic Labs", "Human & Pet Testing") && (
+            <SidebarItem
+              to="/human-pet-labs"
+              label="Diagnostic Labs"
+              sub="Human & Pet Testing"
+              isCollapsed={isCollapsed}
+              iconBg="bg-teal-500/15 dark:bg-teal-950/60 border border-teal-500/25"
+              icon={<TestTube className="w-5 h-5 text-[#0D9488] dark:text-teal-400" />}
+            />
+          )}
+
+          {/* Fashion Institutes */}
+          {matchesSearch("Fashion Institutes", "Academies & Colleges") && (
+            <SidebarItem
+              to="/fashion-institutes"
+              label="Fashion Institutes"
+              sub="Academies & Colleges"
+              isCollapsed={isCollapsed}
+              iconBg="bg-pink-500/15 dark:bg-pink-950/60 border border-pink-500/25"
+              icon={<GraduationCap className="w-5 h-5 text-[#DB2777] dark:text-pink-400" />}
+            />
+          )}
+
+          {/* =============================================================== */}
+          {/* SECTION: LOGISTICS & SUPPLY CHAIN                               */}
+          {/* =============================================================== */}
+          <div className="flex items-center gap-2 px-3 pt-3.5 pb-1">
+            {!isCollapsed ? (
+              <>
+                <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">
+                  LOGISTICS & SUPPLY CHAIN
+                </span>
+                <div className="flex-1 h-px bg-slate-200/80 dark:bg-slate-800" />
+              </>
+            ) : (
+              <div className="w-full h-px bg-slate-200/80 dark:bg-slate-800 my-1" />
+            )}
+          </div>
+
+          {/* Courier Tier 1 */}
+          {matchesSearch("Courier Tier 1", "Express Freight & Cargo") && (
+            <SidebarItem
+              to="/courier-tier-1"
+              label="Courier Tier 1"
+              sub="Express Freight & Cargo"
+              isCollapsed={isCollapsed}
+              iconBg="bg-sky-500/15 dark:bg-sky-950/60 border border-sky-500/25"
+              icon={<Truck className="w-5 h-5 text-[#0284C7] dark:text-sky-400" />}
+            />
+          )}
+
+          {/* =============================================================== */}
+          {/* SECTION: INDUSTRY & MANUFACTURING                               */}
+          {/* =============================================================== */}
+          <div className="flex items-center gap-2 px-3 pt-3.5 pb-1">
+            {!isCollapsed ? (
+              <>
+                <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">
+                  INDUSTRY & MANUFACTURING
+                </span>
+                <div className="flex-1 h-px bg-slate-200/80 dark:bg-slate-800" />
+              </>
+            ) : (
+              <div className="w-full h-px bg-slate-200/80 dark:bg-slate-800 my-1" />
+            )}
+          </div>
+
+          {/* Pet Manufacturers */}
+          {matchesSearch("Pet Manufacturers", "Production & Exports") && (
+            <SidebarItem
+              to="/pet-manufacturers"
+              label="Pet Manufacturers"
+              sub="Production & Exports"
+              isCollapsed={isCollapsed}
+              iconBg="bg-emerald-500/15 dark:bg-emerald-950/60 border border-emerald-500/25"
+              icon={<Factory className="w-5 h-5 text-[#059669] dark:text-emerald-400" />}
+            />
+          )}
+
+          {/* Philippines Pet Products */}
+          {matchesSearch("Philippines Pet Products", "Overseas Marketplace") && (
+            <SidebarItem
+              to="/philippines-pet-products"
+              label="Philippines Products"
+              sub="Overseas Marketplace"
+              isCollapsed={isCollapsed}
+              iconBg="bg-cyan-500/15 dark:bg-cyan-950/60 border border-cyan-500/25"
+              icon={<ShoppingBag className="w-5 h-5 text-[#0891B2] dark:text-cyan-400" />}
+            />
+          )}
+
+          {/* =============================================================== */}
+          {/* SECTION: AGRICULTURE & LIVESTOCK                                */}
+          {/* =============================================================== */}
+          <div className="flex items-center gap-2 px-3 pt-3.5 pb-1">
+            {!isCollapsed ? (
+              <>
+                <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">
+                  AGRICULTURE & LIVESTOCK
+                </span>
+                <div className="flex-1 h-px bg-slate-200/80 dark:bg-slate-800" />
+              </>
+            ) : (
+              <div className="w-full h-px bg-slate-200/80 dark:bg-slate-800 my-1" />
+            )}
+          </div>
+
+          {/* Livestock Farms */}
+          {matchesSearch("Livestock Farms", "Dairy & Cattle Breeding") && (
+            <SidebarItem
+              to="/livestock"
+              label="Livestock Farms"
+              sub="Dairy & Cattle Breeding"
+              isCollapsed={isCollapsed}
+              iconBg="bg-amber-500/15 dark:bg-amber-950/60 border border-amber-500/25"
+              icon={<Beef className="w-5 h-5 text-[#D97706] dark:text-amber-400" />}
+            />
+          )}
+
+          {/* Poultry Directory */}
+          {matchesSearch("Poultry Directory", "Broilers, Hatcheries & Feed") && (
+            <SidebarItem
+              to="/poultry"
+              label="Poultry Directory"
+              sub="Broilers, Hatcheries & Feed"
+              isCollapsed={isCollapsed}
+              iconBg="bg-emerald-500/15 dark:bg-emerald-950/60 border border-emerald-500/25"
+              icon={<Egg className="w-5 h-5 text-[#059669] dark:text-emerald-400" />}
+            />
+          )}
+
+{/* =============================================================== */}
           {/* SECTION: OPERATIONS                                             */}
           {/* =============================================================== */}
           <div className="flex items-center gap-2 px-3 pt-3.5 pb-1">

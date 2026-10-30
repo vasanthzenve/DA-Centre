@@ -170,7 +170,7 @@ export const UserChatbotModal: React.FC = () => {
   return (
     <>
       {/* Floating Launcher Button */}
-      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
+      <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3">
         {!isOpen && (
           <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 text-white text-xs font-semibold shadow-xl border border-teal-500/30 backdrop-blur-md animate-bounce">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
@@ -203,7 +203,7 @@ export const UserChatbotModal: React.FC = () => {
 
       {/* Chat Window Modal */}
       {isOpen && (
-        <div className="fixed bottom-24 right-4 sm:right-6 z-50 w-[92vw] sm:w-[400px] h-[520px] max-h-[80vh] rounded-3xl bg-slate-900/95 text-white shadow-2xl shadow-slate-950/60 border border-teal-500/30 backdrop-blur-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed bottom-24 right-4 sm:right-6 z-40 w-[92vw] sm:w-[400px] h-[520px] max-h-[80vh] rounded-3xl bg-slate-900/95 text-white shadow-2xl shadow-slate-950/60 border border-teal-500/30 backdrop-blur-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {/* Header */}
           <div className="px-5 py-4 bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 border-b border-teal-500/20 flex items-center justify-between">
             <div className="flex items-center gap-3">

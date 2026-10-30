@@ -317,6 +317,278 @@ export interface WelfareNetwork {
   bookingUrlContact?: string;
 }
 
+
+// Module 7: Fashion Designer
+export interface FashionDesigner {
+  id?: number;
+  Designer_Name: string;
+  Brand_Name?: string;
+  Specification?: string;
+  City?: string;
+  State?: string;
+  Country?: string;
+  Website_Address?: string;
+  Official_Email?: string;
+  Mobile_Number?: string;
+  Pincode?: string;
+  Studio_Address?: string;
+  Year_of_Establishment?: string;
+  "Mobile/website_verification"?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  // aliases
+  designerName?: string;
+  brandName?: string;
+  specification?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  websiteAddress?: string;
+  officialEmail?: string;
+  mobileNumber?: string;
+  pincode?: string;
+  studioAddress?: string;
+  yearOfEstablishment?: string;
+  verificationStatus?: string;
+}
+
+// Module 8: Fashion Institute
+export interface FashionInstitute {
+  id?: number;
+  state?: string;
+  State?: string;
+  City?: string;
+  Area?: string;
+  Institute_Name: string;
+  Address?: string;
+  Pincode?: string;
+  Phone_No?: string;
+  Website?: string;
+  Email_ID?: string;
+  Map_Location?: string;
+  Place_ID?: string;
+  Verification_status?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  // aliases
+  instituteName?: string;
+  city?: string;
+  area?: string;
+  address?: string;
+  pincode?: string;
+  phoneNo?: string;
+  website?: string;
+  emailId?: string;
+  mapLocation?: string;
+  placeId?: string;
+  verificationStatus?: string;
+}
+
+// Module 9: Courier Tier 1
+export interface CourierTier1 {
+  id?: number;
+  State?: string;
+  City?: string;
+  "Company Name": string;
+  Address?: string;
+  Pincode?: string;
+  "Phone Number"?: string;
+  Rating?: number;
+  Services?: string;
+  Website?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  // aliases
+  state?: string;
+  city?: string;
+  companyName?: string;
+  address?: string;
+  pincode?: string;
+  phoneNumber?: string;
+  rating?: number;
+  services?: string;
+  website?: string;
+}
+
+// Module 10: Pet Manufacturer
+export interface PetManufacturer {
+  id?: number;
+  country?: string;
+  Manufacturer_Name: string;
+  Manufacturer_Address?: string;
+  Product_Category?: string;
+  Mobile_Number?: string;
+  Email_ID?: string;
+  Website?: string;
+  "Export Countries"?: string;
+  "Source URL"?: string;
+  Verification?: string;
+  Analyst?: string;
+  command?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  // aliases
+  manufacturerName?: string;
+  manufacturerAddress?: string;
+  productCategory?: string;
+  mobileNumber?: string;
+  emailId?: string;
+  website?: string;
+  exportCountries?: string;
+  sourceUrl?: string;
+  verification?: string;
+  analyst?: string;
+}
+
+// Module 11: Human and Pet Lab
+export interface HumanPetLab {
+  id?: number;
+  State?: string;
+  City?: string;
+  Laboratory_Name: string;
+  Laboratory_Address?: string;
+  Contact_Number?: string;
+  Email_ID?: string;
+  Laboratory_Type?: string;
+  Testing_Services?: string;
+  "Animal_Types_Covered_(N/A_for_Human_Labs)"?: string;
+  website?: string;
+  Google_Maps_Link?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  // aliases
+  state?: string;
+  city?: string;
+  laboratoryName?: string;
+  laboratoryAddress?: string;
+  contactNumber?: string;
+  emailId?: string;
+  laboratoryType?: string;
+  testingServices?: string;
+  animalTypesCovered?: string;
+  googleMapsLink?: string;
+}
+
+// Module 12: Livestock
+export interface Livestock {
+  id?: number;
+  Name: string;
+  Livestock_Type?: string;
+  Farm_Type?: string;
+  Contact_Number?: string;
+  Email?: string;
+  Website?: string;
+  Address?: string;
+  Area?: string;
+  District?: string;
+  State?: string;
+  Pincode?: string;
+  Services?: string;
+  Rating?: number;
+  Reviews_Count?: number;
+  Business_Status?: string;
+  Google_Maps?: string;
+  Source_URL?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  // aliases
+  name?: string;
+  livestockType?: string;
+  farmType?: string;
+  contactNumber?: string;
+  email?: string;
+  website?: string;
+  address?: string;
+  area?: string;
+  district?: string;
+  state?: string;
+  pincode?: string;
+  services?: string;
+  rating?: number;
+  reviewsCount?: number;
+  businessStatus?: string;
+  googleMaps?: string;
+  sourceUrl?: string;
+}
+
+// Module 13: Philippines Pet Products
+export interface PhilippinesPetProduct {
+  id?: number;
+  Country?: string;
+  "Product Name": string;
+  "Brand Name"?: string;
+  "Product Description"?: string;
+  "Minimum Price (PHP)"?: number;
+  "Maximum Price (PHP)"?: number;
+  "Current Selling Price (PHP)"?: number;
+  Availability?: string;
+  "Marketplace Name"?: string;
+  "Product URL"?: string;
+  "Product Image URL"?: string;
+  "Source URL"?: string;
+  Command?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  // aliases
+  country?: string;
+  productName?: string;
+  brandName?: string;
+  productDescription?: string;
+  minimumPricePhp?: number;
+  maximumPricePhp?: number;
+  currentSellingPricePhp?: number;
+  availability?: string;
+  marketplaceName?: string;
+  productUrl?: string;
+  productImageUrl?: string;
+  sourceUrl?: string;
+  command?: string;
+}
+
+// Module 14: Poultry
+export interface Poultry {
+  id?: number;
+  Name: string;
+  Category?: string;
+  Sub_Category?: string;
+  Phone?: string;
+  Website?: string;
+  Address?: string;
+  Area?: string;
+  District?: string;
+  State?: string;
+  Pincode?: string;
+  Business_Tag?: string;
+  Rating?: number;
+  Reviews?: string;
+  Status?: string;
+  Source?: string;
+  Maps_Link?: string;
+  Analyst?: string;
+  Notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  // aliases
+  name?: string;
+  category?: string;
+  subCategory?: string;
+  phone?: string;
+  website?: string;
+  address?: string;
+  area?: string;
+  district?: string;
+  state?: string;
+  pincode?: string;
+  businessTag?: string;
+  rating?: number;
+  reviews?: string;
+  status?: string;
+  source?: string;
+  mapsLink?: string;
+  analyst?: string;
+  notes?: string;
+}
+
 // Excel Types
 export interface InvalidRowInfo {
   rowNumber: number;

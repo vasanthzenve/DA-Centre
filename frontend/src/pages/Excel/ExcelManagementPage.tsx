@@ -23,6 +23,14 @@ import { accessoryService } from '../../services/accessoryService';
 import { serviceNetworkService } from '../../services/serviceNetworkService';
 import { doctorService } from '../../services/doctorService';
 import { welfareNetworkService } from '../../services/welfareNetworkService';
+import { fashionDesignerService } from '../../services/fashionDesignerService';
+import { fashionInstituteService } from '../../services/fashionInstituteService';
+import { courierTier1Service } from '../../services/courierTier1Service';
+import { petManufacturerService } from '../../services/petManufacturerService';
+import { humanPetLabService } from '../../services/humanPetLabService';
+import { livestockService } from '../../services/livestockService';
+import { philippinesPetProductService } from '../../services/philippinesPetProductService';
+import { poultryService } from '../../services/poultryService';
 import { useToast } from '../../components/common/Toast';
 
 interface ModuleConfig {
@@ -125,6 +133,94 @@ const MODULES: ModuleConfig[] = [
     description: 'Non-profit animal shelters, stray rescue response teams & foster networks',
     fields: ['Business Name', 'Service Type', 'State', 'District / Region', 'Area', 'Address', 'City / Region', 'Contact Number', 'Website / Social Media', 'Rating', 'Google Maps / Source URL', 'Booking URL / Booking Contact'],
     service: welfareNetworkService,
+  },
+  {
+    key: 'fashion-designers',
+    name: 'Fashion Designers',
+    table: 'fashion_designers',
+    color: 'text-rose-600 dark:text-rose-400',
+    badgeBg: 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800',
+    iconBg: 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400',
+    description: 'Couture studios, bespoke fashion designers, studio addresses and contact verifications',
+    fields: ['Designer_Name', 'Brand_Name', 'Specification', 'City', 'State', 'Country', 'Website_Address', 'Official_Email', 'Mobile_Number', 'Pincode', 'Studio_Address', 'Year_of_Establishment', 'Mobile/website_verification'],
+    service: fashionDesignerService,
+  },
+  {
+    key: 'fashion-institutes',
+    name: 'Fashion Institutes',
+    table: 'fashion_institutes',
+    color: 'text-pink-600 dark:text-pink-400',
+    badgeBg: 'bg-pink-50 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-800',
+    iconBg: 'bg-pink-100 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400',
+    description: 'Design academies, fashion colleges, campus addresses, place IDs and status verification',
+    fields: ['state', 'City', 'Area', 'Institute_Name', 'Address', 'Pincode', 'Phone_No', 'Website', 'Email_ID', 'Map_Location', 'Place_ID', 'Verification_status'],
+    service: fashionInstituteService,
+  },
+  {
+    key: 'courier-tier-1',
+    name: 'Courier Tier 1',
+    table: 'courier_tier_1',
+    color: 'text-sky-600 dark:text-sky-400',
+    badgeBg: 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800',
+    iconBg: 'bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400',
+    description: 'Express freight couriers, logistics network hubs, customer ratings and services',
+    fields: ['State', 'City', 'Company Name', 'Address', 'Pincode', 'Phone Number', 'Rating', 'Services', 'Website'],
+    service: courierTier1Service,
+  },
+  {
+    key: 'pet-manufacturers',
+    name: 'Pet Manufacturers',
+    table: 'pet_manufacturers',
+    color: 'text-emerald-600 dark:text-emerald-400',
+    badgeBg: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+    iconBg: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400',
+    description: 'Global pet food & accessory manufacturers, export markets, analysts and verification',
+    fields: ['country', 'Manufacturer_Name', 'Manufacturer_Address', 'Product_Category', 'Mobile_Number', 'Email_ID', 'Website', 'Export Countries', 'Source URL', 'Verification', 'Analyst', 'command'],
+    service: petManufacturerService,
+  },
+  {
+    key: 'human-pet-labs',
+    name: 'Human & Pet Labs',
+    table: 'human_pet_labs',
+    color: 'text-teal-600 dark:text-teal-400',
+    badgeBg: 'bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800',
+    iconBg: 'bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400',
+    description: 'Diagnostic testing centers, clinical pathology, veterinary diagnostics & covered animal types',
+    fields: ['State', 'City', 'Laboratory_Name', 'Laboratory_Address', 'Contact_Number', 'Email_ID', 'Laboratory_Type', 'Testing_Services', 'Animal_Types_Covered_(N/A_for_Human_Labs)', 'website', 'Google_Maps_Link'],
+    service: humanPetLabService,
+  },
+  {
+    key: 'livestock',
+    name: 'Livestock Directory',
+    table: 'livestock',
+    color: 'text-amber-600 dark:text-amber-400',
+    badgeBg: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+    iconBg: 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400',
+    description: 'Dairy cattle, sheep, stud breeding farms, agricultural livestock supplies & services',
+    fields: ['Name', 'Livestock_Type', 'Farm_Type', 'Contact_Number', 'Email', 'Website', 'Address', 'Area', 'District', 'State', 'Pincode', 'Services', 'Rating', 'Reviews_Count', 'Business_Status', 'Google_Maps', 'Source_URL'],
+    service: livestockService,
+  },
+  {
+    key: 'philippines-pet-products',
+    name: 'Philippines Pet Products',
+    table: 'philippines_pet_products',
+    color: 'text-cyan-600 dark:text-cyan-400',
+    badgeBg: 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800',
+    iconBg: 'bg-cyan-100 dark:bg-cyan-900/40 text-cyan-600 dark:text-cyan-400',
+    description: 'Philippine ecommerce pet catalog: min/max/current prices in PHP, marketplaces and stock availability',
+    fields: ['Country', 'Product Name', 'Brand Name', 'Product Description', 'Minimum Price (PHP)', 'Maximum Price (PHP)', 'Current Selling Price (PHP)', 'Availability', 'Marketplace Name', 'Product URL', 'Product Image URL', 'Source URL', 'Command'],
+    service: philippinesPetProductService,
+  },
+  {
+    key: 'poultry',
+    name: 'Poultry Directory',
+    table: 'poultry',
+    color: 'text-emerald-600 dark:text-emerald-400',
+    badgeBg: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+    iconBg: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400',
+    description: 'Poultry farms, hatcheries, broiler & layer production, feed suppliers and verified status',
+    fields: ['Name', 'Category', 'Sub_Category', 'Phone', 'Website', 'Address', 'Area', 'District', 'State', 'Pincode', 'Business_Tag', 'Rating', 'Reviews', 'Status', 'Source', 'Maps_Link', 'Analyst', 'Notes'],
+    service: poultryService,
   },
 ];
 

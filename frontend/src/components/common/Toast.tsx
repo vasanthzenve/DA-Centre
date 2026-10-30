@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 type ToastType = 'success' | 'error' | 'info';
@@ -36,11 +36,13 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const error = useCallback((msg: string) => addToast('error', msg), [addToast]);
   const info = useCallback((msg: string) => addToast('info', msg), [addToast]);
 
+  const value = useMemo(() => ({ success, error, info }), [success, error, info]);
+
   return (
-    <ToastContext.Provider value={{ success, error, info }}>
+    <ToastContext.Provider value={value}>
       {children}
       {/* Toast Notification Container */}
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-md pointer-events-none">
+      <div className="fixed bottom-5 right-5 z-[110] flex flex-col gap-2 max-w-md pointer-events-none">
         {toasts.map((t) => (
           <div
             key={t.id}
