@@ -640,6 +640,15 @@ export interface ChartItem {
   extra?: string | null;
 }
 
+export interface CustomModuleSummary {
+  id: number;
+  name: string;
+  slug: string;
+  recordCount: number;
+  fileName?: string;
+  createdAt?: string;
+}
+
 export interface ActivityItem {
   id: string;
   module: string;
@@ -650,6 +659,8 @@ export interface ActivityItem {
 }
 
 export interface DashboardStats {
+  totalRecords?: number;
+  totalCoreRecords?: number;
   totalMarketResearch: number;
   totalVeterinaryHospitals: number;
   totalHygieneProducts: number;
@@ -658,6 +669,17 @@ export interface DashboardStats {
   totalServices: number;
   totalDoctors: number;
   totalWelfareOrganizations: number;
+  totalFashionDesigners?: number;
+  totalDiagnosticLabs?: number;
+  totalFashionInstitutes?: number;
+  totalCourierTier1?: number;
+  totalPetManufacturers?: number;
+  totalPhilippinesPetProducts?: number;
+  totalLivestock?: number;
+  totalPoultry?: number;
+  totalDynamicRecords?: number;
+  totalDynamicModules?: number;
+  customModules?: CustomModuleSummary[];
   researchByState: ChartItem[];
   hospitalsByCity: ChartItem[];
   marketplaceByCategory: ChartItem[];
@@ -665,4 +687,97 @@ export interface DashboardStats {
   servicesByRegion: ChartItem[];
   welfareByState: ChartItem[];
   recentActivity: ActivityItem[];
+}
+
+
+// ==============================================================================
+// Dynamic Sidebar Generator & No-Code Module Builder Types
+// ==============================================================================
+
+export interface SidebarField {
+  id?: number;
+  moduleId?: number;
+  sheetName?: string;
+  fieldName: string;
+  fieldLabel: string;
+  dataType: string;
+  columnPosition: number;
+  isRequired?: boolean;
+  isSearchable?: boolean;
+  isFilterable?: boolean;
+  sampleValues?: string[];
+}
+
+export interface SidebarModule {
+  id: number;
+  sidebarName: string;
+  moduleSlug: string;
+  description?: string;
+  uploadedFileName?: string;
+  filePath?: string;
+  totalSheets: number;
+  totalRows: number;
+  totalColumns: number;
+  createdBy?: string;
+  createdAt: string;
+  updatedAt: string;
+  status: 'ACTIVE' | 'ARCHIVED' | 'DRAFT';
+  sheetNames?: string[];
+  fields?: SidebarField[];
+}
+
+export interface FieldAnalysis {
+  fieldName: string;
+  fieldLabel: string;
+  headerName?: string;
+  dataType: string;
+  columnPosition: number;
+  isEmptyColumn?: boolean;
+  isDuplicate?: boolean;
+  empty?: boolean;
+  duplicate?: boolean;
+  hasErrors?: boolean;
+  sampleValues: string[];
+}
+
+export interface SheetAnalysis {
+  sheetName: string;
+  sheetIndex: number;
+  totalRows: number;
+  totalColumns: number;
+  fields: FieldAnalysis[];
+  sampleRecords: Record<string, any>[];
+}
+
+export interface ExcelAnalysisResult {
+  fileName: string;
+  fileSizeBytes: number;
+  totalSheets: number;
+  totalRows: number;
+  totalColumns: number;
+  sheets: SheetAnalysis[];
+  tempToken: string;
+}
+
+export interface CreateModulePayload {
+  sidebarName: string;
+  moduleSlug?: string;
+  description?: string;
+  tempToken: string;
+  selectedSheetName?: string;
+  customFields?: {
+    fieldName: string;
+    fieldLabel?: string;
+    headerName?: string;
+    dataType: string;
+    columnPosition: number;
+    sampleValues?: string[];
+  }[];
+  createdBy?: string;
+}
+
+export interface UpdateModulePayload {
+  sidebarName?: string;
+  description?: string;
+  status?: string;
 }

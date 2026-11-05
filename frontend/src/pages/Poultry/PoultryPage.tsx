@@ -721,6 +721,9 @@ export const PoultryPage: React.FC = () => {
         message={`Are you sure you want to delete "${deletingItem?.Name || deletingItem?.name}"? This action cannot be undone.`}
         confirmText="Delete Record"
         confirmVariant="danger"
+        dataType="Poultry"
+        dataId={deletingItem?.id}
+        dataTitle={deletingItem?.Name || deletingItem?.name}
       />
 
       {/* Bulk Delete Dialog */}

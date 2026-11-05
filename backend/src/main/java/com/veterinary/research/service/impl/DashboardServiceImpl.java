@@ -1,6 +1,7 @@
 package com.veterinary.research.service.impl;
 
 import com.veterinary.research.dto.DashboardDTO;
+import com.veterinary.research.entity.SidebarModule;
 import com.veterinary.research.repository.*;
 import com.veterinary.research.service.DashboardService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,16 @@ public class DashboardServiceImpl implements DashboardService {
     private final ServiceNetworkRepository serviceNetworkRepository;
     private final DoctorRepository doctorRepository;
     private final WelfareNetworkRepository welfareNetworkRepository;
+    private final FashionDesignerRepository fashionDesignerRepository;
+    private final HumanPetLabRepository humanPetLabRepository;
+    private final FashionInstituteRepository fashionInstituteRepository;
+    private final CourierTier1Repository courierTier1Repository;
+    private final PetManufacturerRepository petManufacturerRepository;
+    private final PhilippinesPetProductRepository philippinesPetProductRepository;
+    private final LivestockRepository livestockRepository;
+    private final PoultryRepository poultryRepository;
+    private final SidebarRecordRepository sidebarRecordRepository;
+    private final SidebarModuleRepository sidebarModuleRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -38,7 +49,42 @@ public class DashboardServiceImpl implements DashboardService {
         long totalServices = serviceNetworkRepository.count();
         long totalDoctors = doctorRepository.count();
         long totalWelfare = welfareNetworkRepository.count();
+        long totalDesigners = fashionDesignerRepository.count();
+        long totalLabs = humanPetLabRepository.count();
+        long totalInstitutes = fashionInstituteRepository.count();
+        long totalCourier = courierTier1Repository.count();
+        long totalManufacturers = petManufacturerRepository.count();
+        long totalPhProducts = philippinesPetProductRepository.count();
+        long totalLivestock = livestockRepository.count();
+        long totalPoultry = poultryRepository.count();
 
+        // Dynamic Custom Modules (Excel Uploads & Auto-generated sidebars)
+        List<SidebarModule> activeCustomModules = sidebarModuleRepository.findAllActive();
+        long customModulesRowsSum = 0;
+        List<DashboardDTO.CustomModuleSummaryDTO> customModuleSummaries = new ArrayList<>();
+        for (SidebarModule m : activeCustomModules) {
+            long rows = m.getTotalRows() != null ? m.getTotalRows().longValue() : 0L;
+            customModulesRowsSum += rows;
+            customModuleSummaries.add(DashboardDTO.CustomModuleSummaryDTO.builder()
+                    .id(m.getId())
+                    .name(m.getSidebarName())
+                    .slug(m.getModuleSlug())
+                    .recordCount(rows)
+                    .fileName(m.getUploadedFileName())
+                    .createdAt(m.getCreatedAt())
+                    .build());
+        }
+
+        long actualRecordRepoCount = sidebarRecordRepository.count();
+        long totalDynamicRecords = Math.max(actualRecordRepoCount, customModulesRowsSum);
+        long totalDynamicModules = activeCustomModules.size();
+
+        long totalCoreRecords = totalMarketResearch + totalHospitals + totalHygiene + totalFood +
+                totalAccessories + totalServices + totalDoctors + totalWelfare +
+                totalDesigners + totalLabs + totalInstitutes + totalCourier +
+                totalManufacturers + totalPhProducts + totalLivestock + totalPoultry;
+
+        long totalRecords = totalCoreRecords + totalDynamicRecords;
         // 1. Research by State
         List<DashboardDTO.ChartItem> researchByState = new ArrayList<>();
         List<Map<String, Object>> stateData = marketResearchRepository.countByStateGroup();
@@ -140,6 +186,20 @@ public class DashboardServiceImpl implements DashboardService {
         });
 
         return DashboardDTO.builder()
+                .totalRecords(totalRecords)
+                .totalCoreRecords(totalCoreRecords)
+                .totalDynamicRecords(totalDynamicRecords)
+                .totalDynamicModules(totalDynamicModules)
+                .customModules(customModuleSummaries)
+                .totalFashionDesigners(totalDesigners)
+                .totalDiagnosticLabs(totalLabs)
+                .totalFashionInstitutes(totalInstitutes)
+                .totalCourierTier1(totalCourier)
+                .totalPetManufacturers(totalManufacturers)
+                .totalPhilippinesPetProducts(totalPhProducts)
+                .totalLivestock(totalLivestock)
+                .totalPoultry(totalPoultry)
+                .totalDynamicRecords(totalDynamicRecords)
                 .totalMarketResearch(totalMarketResearch)
                 .totalVeterinaryHospitals(totalHospitals)
                 .totalHygieneProducts(totalHygiene)

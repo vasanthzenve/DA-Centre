@@ -705,6 +705,9 @@ export const LivestockPage: React.FC = () => {
         onConfirm={handleDelete}
         title="Delete Livestock Record"
         message={`Are you sure you want to delete ${deletingItem?.Name || deletingItem?.name}? This action cannot be undone.`}
+        dataType="Livestock"
+        dataId={deletingItem?.id}
+        dataTitle={deletingItem?.Name || deletingItem?.name}
       />
 
       {/* Bulk Delete */}

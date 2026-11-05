@@ -238,6 +238,7 @@ export const AdminDashboardPage: React.FC = () => {
       toast.success(
         `Deletion Request #${req.id} approved! Target [${req.dataType} #${req.dataId}] automatically deleted from DA Centre.`
       );
+      window.dispatchEvent(new CustomEvent('dynamic-modules-updated'));
       await loadAllData();
     } catch (err: any) {
       toast.error(err.message || 'Failed to approve deletion');

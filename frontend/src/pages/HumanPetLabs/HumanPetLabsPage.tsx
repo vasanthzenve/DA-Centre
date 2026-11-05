@@ -616,6 +616,9 @@ export const HumanPetLabsPage: React.FC = () => {
         onConfirm={handleDelete}
         title="Delete Laboratory"
         message={`Are you sure you want to delete ${deletingItem?.Laboratory_Name || deletingItem?.laboratoryName}? This action cannot be undone.`}
+        dataType="HumanPetLab"
+        dataId={deletingItem?.id}
+        dataTitle={deletingItem?.Laboratory_Name || deletingItem?.laboratoryName}
       />
 
       {/* Bulk Delete */}

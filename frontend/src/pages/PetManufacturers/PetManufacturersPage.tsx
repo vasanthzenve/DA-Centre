@@ -588,6 +588,9 @@ export const PetManufacturersPage: React.FC = () => {
         message={`Are you sure you want to delete "${deletingItem?.Manufacturer_Name || deletingItem?.manufacturerName}"? This action cannot be undone.`}
         confirmText="Delete Record"
         confirmVariant="danger"
+        dataType="PetManufacturer"
+        dataId={deletingItem?.id}
+        dataTitle={deletingItem?.Manufacturer_Name || deletingItem?.manufacturerName}
       />
 
       {/* Bulk Delete */}

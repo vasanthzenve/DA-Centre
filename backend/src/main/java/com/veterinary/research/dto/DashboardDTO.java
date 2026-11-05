@@ -12,6 +12,8 @@ import java.util.List;
 @Builder
 public class DashboardDTO {
 
+    private long totalRecords;
+    private long totalCoreRecords;
     private long totalMarketResearch;
     private long totalVeterinaryHospitals;
     private long totalHygieneProducts;
@@ -20,6 +22,17 @@ public class DashboardDTO {
     private long totalServices;
     private long totalDoctors;
     private long totalWelfareOrganizations;
+    private long totalFashionDesigners;
+    private long totalDiagnosticLabs;
+    private long totalFashionInstitutes;
+    private long totalCourierTier1;
+    private long totalPetManufacturers;
+    private long totalPhilippinesPetProducts;
+    private long totalLivestock;
+    private long totalPoultry;
+    private long totalDynamicRecords;
+    private long totalDynamicModules;
+    private List<CustomModuleSummaryDTO> customModules;
 
     private List<ChartItem> researchByState;
     private List<ChartItem> hospitalsByCity;
@@ -39,6 +52,20 @@ public class DashboardDTO {
         private String name;
         private long value;
         private String extra;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class CustomModuleSummaryDTO {
+        private Long id;
+        private String name;
+        private String slug;
+        private long recordCount;
+        private String fileName;
+        private LocalDateTime createdAt;
     }
 
     @Getter

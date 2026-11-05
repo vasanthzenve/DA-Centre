@@ -541,6 +541,9 @@ export const CourierTier1Page: React.FC = () => {
         message={`Are you sure you want to delete "${deletingItem?.['Company Name'] || deletingItem?.companyName}"? This action cannot be undone.`}
         confirmText="Delete Record"
         confirmVariant="danger"
+        dataType="CourierTier1"
+        dataId={deletingItem?.id}
+        dataTitle={deletingItem?.['Company Name'] || deletingItem?.companyName}
       />
 
       {/* Bulk Delete */}

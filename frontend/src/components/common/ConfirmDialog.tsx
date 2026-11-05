@@ -43,7 +43,11 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   const inferredType =
     dataType ||
-    (title.toLowerCase().includes('doctor')
+    (title.toLowerCase().includes('dynamic module') || title.toLowerCase().includes('custom module') || title.toLowerCase().includes('sidebar module')
+      ? 'DynamicModule'
+      : title.toLowerCase().includes('dynamic record') || title.toLowerCase().includes('sidebar record')
+      ? 'DynamicRecord'
+      : title.toLowerCase().includes('doctor')
       ? 'Doctor'
       : title.toLowerCase().includes('food')
       ? 'FoodProduct'
@@ -59,6 +63,24 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       ? 'ServiceNetwork'
       : title.toLowerCase().includes('welfare')
       ? 'WelfareNetwork'
+      : title.toLowerCase().includes('designer') || title.toLowerCase().includes('fashion designer')
+      ? 'FashionDesigner'
+      : title.toLowerCase().includes('institute') || title.toLowerCase().includes('fashion institute')
+      ? 'FashionInstitute'
+      : title.toLowerCase().includes('courier')
+      ? 'CourierTier1'
+      : title.toLowerCase().includes('manufacturer')
+      ? 'PetManufacturer'
+      : title.toLowerCase().includes('lab') || title.toLowerCase().includes('diagnostic')
+      ? 'HumanPetLab'
+      : title.toLowerCase().includes('livestock')
+      ? 'Livestock'
+      : title.toLowerCase().includes('philippines')
+      ? 'PhilippinesPetProduct'
+      : title.toLowerCase().includes('poultry')
+      ? 'Poultry'
+      : title.toLowerCase().includes('module')
+      ? 'DynamicModule'
       : 'Record');
 
   const handleSendToAdmin = async (e: React.FormEvent) => {
@@ -74,7 +96,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     try {
       await dataDeletionService.submitRequest({
         dataType: inferredType,
-        dataId: dataId || Math.floor(Math.random() * 1000) + 1,
+        dataId: dataId !== undefined && dataId !== null ? Number(dataId) : 0,
         dataTitle: dataTitle || message || `${inferredType} Record`,
         reason: reason.trim(),
         userEmail: currentUser?.email || 'user@dacentre.com',

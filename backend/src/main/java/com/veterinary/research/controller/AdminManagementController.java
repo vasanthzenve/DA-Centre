@@ -3,14 +3,17 @@ package com.veterinary.research.controller;
 import com.veterinary.research.dto.ApiResponse;
 import com.veterinary.research.dto.AuthDTOs;
 import com.veterinary.research.entity.DataDeletionRequest;
+import com.veterinary.research.entity.SidebarModule;
 import com.veterinary.research.entity.User;
 import com.veterinary.research.entity.UserLoginSession;
 import com.veterinary.research.repository.*;
+import com.veterinary.research.service.DynamicSidebarService;
 import com.veterinary.research.util.ClientIpUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +35,7 @@ public class AdminManagementController {
     private final ChatbotMessageRepository chatbotMessageRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // Entity Repositories for Automatic Deletion
+    // Entity Repositories for Automatic Deletion (All 16 Core Modules)
     private final DoctorRepository doctorRepository;
     private final FoodProductRepository foodProductRepository;
     private final HygieneProductRepository hygieneProductRepository;
@@ -41,6 +44,20 @@ public class AdminManagementController {
     private final VeterinaryEcosystemRepository ecosystemRepository;
     private final ServiceNetworkRepository serviceNetworkRepository;
     private final WelfareNetworkRepository welfareNetworkRepository;
+    private final FashionDesignerRepository fashionDesignerRepository;
+    private final HumanPetLabRepository humanPetLabRepository;
+    private final FashionInstituteRepository fashionInstituteRepository;
+    private final CourierTier1Repository courierTier1Repository;
+    private final PetManufacturerRepository petManufacturerRepository;
+    private final PhilippinesPetProductRepository philippinesPetProductRepository;
+    private final LivestockRepository livestockRepository;
+    private final PoultryRepository poultryRepository;
+
+    // Dynamic Module & Record Repositories & Service for Automatic Deletion
+    private final DynamicSidebarService dynamicSidebarService;
+    private final SidebarModuleRepository sidebarModuleRepository;
+    private final SidebarRecordRepository sidebarRecordRepository;
+    private final CacheManager cacheManager;
 
     /**
      * Admin Dashboard Statistics: Total users, spend time, activities, pending items, live IP telemetry
@@ -368,7 +385,7 @@ public class AdminManagementController {
         }
 
         // Automatic deletion from DA Centre repository
-        boolean deleted = executeAutomaticDeletion(request.getDataType(), request.getDataId());
+        boolean deleted = executeAutomaticDeletion(request);
 
         request.setStatus("APPROVED");
         request.setReviewedAt(LocalDateTime.now());
@@ -407,40 +424,135 @@ public class AdminManagementController {
         return ResponseEntity.ok(ApiResponse.success("Deletion request rejected. Record was retained.", saved));
     }
 
-    private boolean executeAutomaticDeletion(String dataType, Long dataId) {
-        if (dataType == null || dataId == null)
+    private boolean executeAutomaticDeletion(DataDeletionRequest request) {
+        if (request == null)
+            return false;
+        String dataType = request.getDataType();
+        Long dataId = request.getDataId();
+        String dataTitle = request.getDataTitle();
+
+        if (dataType == null)
             return false;
         String type = dataType.trim().toLowerCase();
 
+        log.info("Executing automatic deletion for request #{}: type='{}', id={}, title='{}'",
+                request.getId(), dataType, dataId, dataTitle);
+
         try {
-            if (type.contains("doctor")) {
-                doctorRepository.deleteById(dataId);
-                return true;
+            boolean deleted = false;
+
+            // 1. Dynamic Sidebar Custom Modules (Excel uploaded modules)
+            if (type.contains("dynamicmodule") || type.contains("sidebarmodule") || type.contains("custommodule")
+                    || (type.equals("module") && !type.contains("core"))) {
+                // Try deleting by dataId first
+                if (dataId != null && sidebarModuleRepository.existsById(dataId)) {
+                    dynamicSidebarService.deleteModule(dataId);
+                    deleted = true;
+                    log.info("Successfully deleted dynamic module by ID: {}", dataId);
+                } else if (dataTitle != null && !dataTitle.isBlank()) {
+                    // Fallback to title, slug, or quoted name matching
+                    List<String> candidates = new ArrayList<>();
+                    candidates.add(dataTitle.trim());
+                    if (dataTitle.contains("'")) {
+                        int start = dataTitle.indexOf("'");
+                        int end = dataTitle.indexOf("'", start + 1);
+                        if (end > start) candidates.add(dataTitle.substring(start + 1, end).trim());
+                    }
+                    if (dataTitle.contains("\"")) {
+                        int start = dataTitle.indexOf("\"");
+                        int end = dataTitle.indexOf("\"", start + 1);
+                        if (end > start) candidates.add(dataTitle.substring(start + 1, end).trim());
+                    }
+
+                    for (String candidate : candidates) {
+                        if (candidate.isBlank()) continue;
+                        Optional<SidebarModule> bySlug = sidebarModuleRepository.findByModuleSlug(candidate);
+                        if (bySlug.isPresent()) {
+                            dynamicSidebarService.deleteModule(bySlug.get().getId());
+                            deleted = true;
+                            log.info("Successfully deleted dynamic module by Slug match: {}", candidate);
+                            break;
+                        }
+                        Optional<SidebarModule> byName = sidebarModuleRepository.findFirstBySidebarNameIgnoreCase(candidate);
+                        if (byName.isPresent()) {
+                            dynamicSidebarService.deleteModule(byName.get().getId());
+                            deleted = true;
+                            log.info("Successfully deleted dynamic module by Name match: {}", candidate);
+                            break;
+                        }
+                    }
+
+                    // Secondary fallback: search active modules if title contains the module's name
+                    if (!deleted) {
+                        for (SidebarModule m : sidebarModuleRepository.findAll()) {
+                            if (m.getSidebarName() != null && dataTitle.toLowerCase().contains(m.getSidebarName().toLowerCase())
+                                    || (m.getModuleSlug() != null && dataTitle.toLowerCase().contains(m.getModuleSlug().toLowerCase()))) {
+                                dynamicSidebarService.deleteModule(m.getId());
+                                deleted = true;
+                                log.info("Successfully deleted dynamic module by substring match: {}", m.getSidebarName());
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            // 2. Dynamic Sidebar Records
+            else if (type.contains("dynamicrecord") || type.contains("sidebarrecord")) {
+                if (dataId != null && sidebarRecordRepository.existsById(dataId)) {
+                    sidebarRecordRepository.deleteById(dataId);
+                    deleted = true;
+                }
+            }
+            // 3. Core Modules 1 - 8
+            else if (type.contains("doctor")) {
+                if (dataId != null && doctorRepository.existsById(dataId)) { doctorRepository.deleteById(dataId); deleted = true; }
             } else if (type.contains("food")) {
-                foodProductRepository.deleteById(dataId);
-                return true;
+                if (dataId != null && foodProductRepository.existsById(dataId)) { foodProductRepository.deleteById(dataId); deleted = true; }
             } else if (type.contains("hygiene")) {
-                hygieneProductRepository.deleteById(dataId);
-                return true;
+                if (dataId != null && hygieneProductRepository.existsById(dataId)) { hygieneProductRepository.deleteById(dataId); deleted = true; }
             } else if (type.contains("accessory") || type.contains("accessories")) {
-                accessoryRepository.deleteById(dataId);
-                return true;
+                if (dataId != null && accessoryRepository.existsById(dataId)) { accessoryRepository.deleteById(dataId); deleted = true; }
             } else if (type.contains("marketresearch") || type.contains("research")) {
-                marketResearchRepository.deleteById(dataId);
-                return true;
-            } else if (type.contains("ecosystem")) {
-                ecosystemRepository.deleteById(dataId);
-                return true;
+                if (dataId != null && marketResearchRepository.existsById(dataId)) { marketResearchRepository.deleteById(dataId); deleted = true; }
+            } else if (type.contains("ecosystem") || type.contains("hospital")) {
+                if (dataId != null && ecosystemRepository.existsById(dataId)) { ecosystemRepository.deleteById(dataId); deleted = true; }
             } else if (type.contains("servicenetwork") || type.contains("service")) {
-                serviceNetworkRepository.deleteById(dataId);
-                return true;
+                if (dataId != null && serviceNetworkRepository.existsById(dataId)) { serviceNetworkRepository.deleteById(dataId); deleted = true; }
             } else if (type.contains("welfarenetwork") || type.contains("welfare")) {
-                welfareNetworkRepository.deleteById(dataId);
-                return true;
+                if (dataId != null && welfareNetworkRepository.existsById(dataId)) { welfareNetworkRepository.deleteById(dataId); deleted = true; }
+            }
+            // 4. Core Modules 9 - 16
+            else if (type.contains("designer") || type.contains("fashiondesigner")) {
+                if (dataId != null && fashionDesignerRepository.existsById(dataId)) { fashionDesignerRepository.deleteById(dataId); deleted = true; }
+            } else if (type.contains("lab") || type.contains("humanpetlab") || type.contains("diagnosticlab")) {
+                if (dataId != null && humanPetLabRepository.existsById(dataId)) { humanPetLabRepository.deleteById(dataId); deleted = true; }
+            } else if (type.contains("institute") || type.contains("fashioninstitute")) {
+                if (dataId != null && fashionInstituteRepository.existsById(dataId)) { fashionInstituteRepository.deleteById(dataId); deleted = true; }
+            } else if (type.contains("courier") || type.contains("couriertier1")) {
+                if (dataId != null && courierTier1Repository.existsById(dataId)) { courierTier1Repository.deleteById(dataId); deleted = true; }
+            } else if (type.contains("manufacturer") || type.contains("petmanufacturer")) {
+                if (dataId != null && petManufacturerRepository.existsById(dataId)) { petManufacturerRepository.deleteById(dataId); deleted = true; }
+            } else if (type.contains("philippines") || type.contains("philippinespetproduct")) {
+                if (dataId != null && philippinesPetProductRepository.existsById(dataId)) { philippinesPetProductRepository.deleteById(dataId); deleted = true; }
+            } else if (type.contains("livestock")) {
+                if (dataId != null && livestockRepository.existsById(dataId)) { livestockRepository.deleteById(dataId); deleted = true; }
+            } else if (type.contains("poultry")) {
+                if (dataId != null && poultryRepository.existsById(dataId)) { poultryRepository.deleteById(dataId); deleted = true; }
             } else {
                 log.warn("Unknown dataType for automatic deletion: {}", dataType);
-                return false;
             }
+
+            // Invalidate dashboard stats cache immediately so all counters update in real time
+            if (deleted && cacheManager != null) {
+                try {
+                    var cache = cacheManager.getCache("dashboard_stats");
+                    if (cache != null) {
+                        cache.clear();
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            return deleted;
         } catch (Exception e) {
             log.error("Failed to automatically delete data [{}:{}]: {}", dataType, dataId, e.getMessage());
             return false;

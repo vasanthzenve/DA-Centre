@@ -5,7 +5,6 @@ import com.veterinary.research.dto.ExcelDTOs;
 import com.veterinary.research.dto.MarketResearchDTO;
 import com.veterinary.research.dto.PageResponse;
 import com.veterinary.research.entity.MarketResearch;
-import com.veterinary.research.excel.ExcelHelper;
 import com.veterinary.research.excel.ExcelService;
 import com.veterinary.research.exception.ResourceNotFoundException;
 import com.veterinary.research.job.JobInfo;
@@ -26,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -212,7 +212,7 @@ public class MarketResearchServiceImpl implements MarketResearchService {
     @Override
     public JobInfo exportAsync(String format, String scope, List<Long> selectedIds, String search, Map<String, String> filters) throws Exception {
         long totalCount = repository.count();
-        return excelService.startAsyncExport("market_research", format, (lastId) -> {
+        Function<Long, List<Map<String, Object>>> chunkSupplier = (Long lastId) -> {
             Pageable pageable = PageRequest.of(0, 5000);
             List<MarketResearch> chunk = repository.findByIdGreaterThanOrderByIdAsc(lastId, pageable);
             List<Map<String, Object>> maps = new ArrayList<>(chunk.size());
@@ -220,7 +220,8 @@ public class MarketResearchServiceImpl implements MarketResearchService {
                 maps.add(toMap(r));
             }
             return maps;
-        }, totalCount);
+        };
+        return excelService.startAsyncExport("market_research", format, chunkSupplier, totalCount);
     }
 
     private Map<String, Object> toMap(MarketResearch r) {

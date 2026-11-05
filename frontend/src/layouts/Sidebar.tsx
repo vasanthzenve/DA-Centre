@@ -25,7 +25,13 @@ import {
   Beef,
   Egg,
   ShoppingBag,
+  Layers,
+  Trash2,
 } from "lucide-react";
+import { dynamicSidebarService } from "../services/dynamicSidebarService";
+import { SidebarModule } from "../types";
+import { ConfirmDialog } from "../components/common/ConfirmDialog";
+import { useToast } from "../components/common/Toast";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -145,6 +151,45 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [excelOpen, setExcelOpen] = useState(
     location.pathname.startsWith("/excel-management")
   );
+
+  // Dynamic Sidebar Modules state & listener
+  const [dynamicModules, setDynamicModules] = useState<SidebarModule[]>([]);
+  const [moduleToDelete, setModuleToDelete] = useState<SidebarModule | null>(null);
+  const toast = useToast();
+
+  const handleDeleteModule = async () => {
+    if (!moduleToDelete) return;
+    try {
+      await dynamicSidebarService.deleteModule(moduleToDelete.id);
+      toast.success(`Module '${moduleToDelete.sidebarName}' deleted successfully.`);
+      window.dispatchEvent(new CustomEvent('dynamic-modules-updated'));
+      const deletedSlug = moduleToDelete.moduleSlug;
+      setModuleToDelete(null);
+      if (location.pathname.includes(`/dynamic/${deletedSlug}`)) {
+        navigate('/');
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to delete module.');
+    }
+  };
+
+  useEffect(() => {
+    const loadDynamicModules = async () => {
+      try {
+        const list = await dynamicSidebarService.getAllModules();
+        setDynamicModules(list || []);
+      } catch (err) {
+        // Silently fail if server not reachable yet
+      }
+    };
+
+    loadDynamicModules();
+
+    window.addEventListener("dynamic-modules-updated", loadDynamicModules);
+    return () => {
+      window.removeEventListener("dynamic-modules-updated", loadDynamicModules);
+    };
+  }, []);
 
   // Auto-expand submenus when navigating into them
   useEffect(() => {
@@ -836,6 +881,54 @@ export const Sidebar: React.FC<SidebarProps> = ({
             />
           )}
 
+          {/* 9. Dynamic Sidebar Builder (No-Code Generator) */}
+          {matchesSearch("Sidebar Builder", "No-Code Excel Creator") && (
+            <SidebarItem
+              to="/dynamic-sidebar-builder"
+              label="Sidebar Builder"
+              sub="No-Code Excel Creator"
+              isCollapsed={isCollapsed}
+              badge="New"
+              iconBg="bg-gradient-to-tr from-indigo-500 to-blue-600 text-white shadow-sm shadow-blue-500/20"
+              icon={<Sparkles className="w-5 h-5 text-white" />}
+            />
+          )}
+
+          {/* =============================================================== */}
+          {/* SECTION: DYNAMIC / CUSTOM MODULES                               */}
+          {/* =============================================================== */}
+          {dynamicModules.length > 0 && (
+            <>
+              <div className="flex items-center gap-2 px-3 pt-3.5 pb-1">
+                {!isCollapsed ? (
+                  <>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-blue-500 dark:text-blue-400">
+                      CUSTOM MODULES ({dynamicModules.length})
+                    </span>
+                    <div className="flex-1 h-px bg-slate-200/80 dark:bg-slate-800" />
+                  </>
+                ) : (
+                  <div className="w-full h-px bg-slate-200/80 dark:bg-slate-800 my-1" />
+                )}
+              </div>
+
+              {dynamicModules.map((mod) =>
+                matchesSearch(mod.sidebarName, mod.description || "Custom Module") ? (
+                  <SidebarItem
+                    key={mod.id}
+                    to={`/dynamic/${mod.moduleSlug}`}
+                    label={mod.sidebarName}
+                    sub={mod.description || `${mod.totalRows?.toLocaleString() ?? 0} records`}
+                    isCollapsed={isCollapsed}
+                    iconBg="bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400"
+                    icon={<Layers className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />}
+                    onDelete={() => setModuleToDelete(mod)}
+                  />
+                ) : null
+              )}
+            </>
+          )}
+
           <div className="h-2" />
         </div>
 
@@ -913,6 +1006,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
       </aside>
+
+      {/* Delete Module Confirmation Modal */}
+      {moduleToDelete && (
+        <ConfirmDialog
+          isOpen={!!moduleToDelete}
+          onClose={() => setModuleToDelete(null)}
+          onConfirm={handleDeleteModule}
+          title="Delete Dynamic Module"
+          message={`Are you sure you want to permanently delete the module '${moduleToDelete.sidebarName}'? All extracted fields and ${moduleToDelete.totalRows?.toLocaleString()} rows will be removed from the database and the sidebar item will be removed.`}
+          confirmText="Permanently Delete"
+          confirmVariant="danger"
+          dataType="DynamicModule"
+          dataId={moduleToDelete.id}
+          dataTitle={moduleToDelete.sidebarName}
+        />
+      )}
     </>
   );
 };
@@ -928,6 +1037,7 @@ interface SidebarItemProps {
   iconBg: string;
   badge?: string;
   isCollapsed: boolean;
+  onDelete?: () => void;
 }
 
 const SidebarItem: React.FC<SidebarItemProps> = ({
@@ -938,6 +1048,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   iconBg,
   badge,
   isCollapsed,
+  onDelete,
 }) => (
   <NavLink
     to={to}
@@ -985,7 +1096,22 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
           </div>
         )}
 
-        {!isCollapsed && (
+        {!isCollapsed && onDelete && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-all cursor-pointer flex-shrink-0"
+            title="Delete custom module"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        )}
+
+        {!isCollapsed && !onDelete && (
           <ChevronRight
             className={`w-4 h-4 flex-shrink-0 transition-colors ${isActive
               ? "text-[#2563EB]"

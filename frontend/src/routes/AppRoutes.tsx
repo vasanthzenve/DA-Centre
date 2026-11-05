@@ -24,6 +24,8 @@ import { PhilippinesPetProductsPage } from '../pages/PhilippinesPetProducts/Phil
 import { PoultryPage } from '../pages/Poultry/PoultryPage';
 import { ExcelManagementPage } from '../pages/Excel/ExcelManagementPage';
 import { ReportsPage } from '../pages/Reports/ReportsPage';
+import { DynamicSidebarBuilderPage } from '../pages/DynamicSidebar/DynamicSidebarBuilderPage';
+import { DynamicModulePage } from '../pages/DynamicSidebar/DynamicModulePage';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -61,6 +63,10 @@ export const AppRoutes: React.FC = () => {
 
           <Route path="excel-management" element={<ExcelManagementPage />} />
           <Route path="reports" element={<ReportsPage />} />
+
+          {/* Dynamic Sidebar Generator & No-Code Module Routes */}
+          <Route path="dynamic-sidebar-builder" element={<DynamicSidebarBuilderPage />} />
+          <Route path="dynamic/:slug" element={<DynamicModulePage />} />
         </Route>
       </Route>
 

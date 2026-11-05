@@ -278,7 +278,7 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
           </div>
         </div>
       ) : !previewData ? (
-        <div className="py-6">
+        <div className="py-2">
           <input
             type="file"
             ref={fileInputRef}
