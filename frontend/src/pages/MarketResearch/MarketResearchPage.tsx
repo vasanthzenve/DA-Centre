@@ -778,6 +778,9 @@ export const MarketResearchPage: React.FC = () => {
         onConfirm={handleDelete}
         title="Delete Market Research"
         message={`Are you sure you want to delete ${deletingItem?.Company || deletingItem?.company}? This action cannot be undone.`}
+        dataType="MarketResearch"
+        dataId={deletingItem?.id}
+        dataTitle={deletingItem?.Company || deletingItem?.company}
       />
 
       {/* Bulk Delete Confirmation */}

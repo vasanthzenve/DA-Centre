@@ -14,7 +14,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -58,6 +60,7 @@ public class AdminManagementController {
     private final SidebarModuleRepository sidebarModuleRepository;
     private final SidebarRecordRepository sidebarRecordRepository;
     private final CacheManager cacheManager;
+    private final JdbcTemplate jdbcTemplate;
 
     /**
      * Admin Dashboard Statistics: Total users, spend time, activities, pending items, live IP telemetry
@@ -396,8 +399,12 @@ public class AdminManagementController {
         log.info("Admin approved deletion request #{}. Target [{}:{}] automatic delete status: {}",
                 id, request.getDataType(), request.getDataId(), deleted);
 
+        String message = deleted
+                ? "Deletion approved. Data record automatically deleted from DA Centre."
+                : "Deletion approved, but target record was not found or already deleted from database.";
+
         return ResponseEntity
-                .ok(ApiResponse.success("Deletion approved. Data record automatically deleted from DA Centre.", saved));
+                .ok(ApiResponse.success(message, saved));
     }
 
     /**
@@ -435,8 +442,21 @@ public class AdminManagementController {
             return false;
         String type = dataType.trim().toLowerCase();
 
-        log.info("Executing automatic deletion for request #{}: type='{}', id={}, title='{}'",
-                request.getId(), dataType, dataId, dataTitle);
+        // Step 1: If dataId is 0 or null, attempt to extract an ID from dataTitle (e.g. "ID #123" or "#123")
+        if ((dataId == null || dataId <= 0) && dataTitle != null && !dataTitle.isBlank()) {
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("(?:ID|Record)?\\s*#\\s*(\\d+)").matcher(dataTitle);
+            if (m.find()) {
+                try {
+                    dataId = Long.parseLong(m.group(1));
+                    log.info("Extracted dataId {} from title '{}'", dataId, dataTitle);
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+
+        String cleanTitle = cleanTargetTitle(dataTitle);
+
+        log.info("Executing automatic deletion for request #{}: type='{}', id={}, cleanTitle='{}'",
+                request.getId(), dataType, dataId, cleanTitle);
 
         try {
             boolean deleted = false;
@@ -444,25 +464,14 @@ public class AdminManagementController {
             // 1. Dynamic Sidebar Custom Modules (Excel uploaded modules)
             if (type.contains("dynamicmodule") || type.contains("sidebarmodule") || type.contains("custommodule")
                     || (type.equals("module") && !type.contains("core"))) {
-                // Try deleting by dataId first
-                if (dataId != null && sidebarModuleRepository.existsById(dataId)) {
+                if (dataId != null && dataId > 0 && sidebarModuleRepository.existsById(dataId)) {
                     dynamicSidebarService.deleteModule(dataId);
                     deleted = true;
                     log.info("Successfully deleted dynamic module by ID: {}", dataId);
-                } else if (dataTitle != null && !dataTitle.isBlank()) {
-                    // Fallback to title, slug, or quoted name matching
+                } else if (cleanTitle != null && !cleanTitle.isBlank()) {
                     List<String> candidates = new ArrayList<>();
-                    candidates.add(dataTitle.trim());
-                    if (dataTitle.contains("'")) {
-                        int start = dataTitle.indexOf("'");
-                        int end = dataTitle.indexOf("'", start + 1);
-                        if (end > start) candidates.add(dataTitle.substring(start + 1, end).trim());
-                    }
-                    if (dataTitle.contains("\"")) {
-                        int start = dataTitle.indexOf("\"");
-                        int end = dataTitle.indexOf("\"", start + 1);
-                        if (end > start) candidates.add(dataTitle.substring(start + 1, end).trim());
-                    }
+                    candidates.add(cleanTitle);
+                    if (dataTitle != null && !dataTitle.equals(cleanTitle)) candidates.add(dataTitle.trim());
 
                     for (String candidate : candidates) {
                         if (candidate.isBlank()) continue;
@@ -482,14 +491,13 @@ public class AdminManagementController {
                         }
                     }
 
-                    // Secondary fallback: search active modules if title contains the module's name
                     if (!deleted) {
                         for (SidebarModule m : sidebarModuleRepository.findAll()) {
-                            if (m.getSidebarName() != null && dataTitle.toLowerCase().contains(m.getSidebarName().toLowerCase())
-                                    || (m.getModuleSlug() != null && dataTitle.toLowerCase().contains(m.getModuleSlug().toLowerCase()))) {
+                            if (m.getSidebarName() != null && m.getSidebarName().equalsIgnoreCase(cleanTitle)
+                                    || (m.getModuleSlug() != null && m.getModuleSlug().equalsIgnoreCase(cleanTitle))) {
                                 dynamicSidebarService.deleteModule(m.getId());
                                 deleted = true;
-                                log.info("Successfully deleted dynamic module by substring match: {}", m.getSidebarName());
+                                log.info("Successfully deleted dynamic module by exact case-insensitive match: {}", m.getSidebarName());
                                 break;
                             }
                         }
@@ -498,46 +506,58 @@ public class AdminManagementController {
             }
             // 2. Dynamic Sidebar Records
             else if (type.contains("dynamicrecord") || type.contains("sidebarrecord")) {
-                if (dataId != null && sidebarRecordRepository.existsById(dataId)) {
-                    sidebarRecordRepository.deleteById(dataId);
-                    deleted = true;
+                if (dataId != null && dataId > 0 && sidebarRecordRepository.existsById(dataId)) {
+                    Optional<com.veterinary.research.entity.SidebarRecord> recordOpt = sidebarRecordRepository.findById(dataId);
+                    if (recordOpt.isPresent()) {
+                        com.veterinary.research.entity.SidebarRecord sr = recordOpt.get();
+                        Long modId = sr.getModuleId();
+                        sidebarRecordRepository.delete(sr);
+                        deleted = true;
+                        if (modId != null) {
+                            sidebarModuleRepository.findById(modId).ifPresent(m -> {
+                                long rem = sidebarRecordRepository.countByModuleId(modId);
+                                m.setTotalRows((int) rem);
+                                sidebarModuleRepository.save(m);
+                            });
+                        }
+                    }
                 }
             }
             // 3. Core Modules 1 - 8
             else if (type.contains("doctor")) {
-                if (dataId != null && doctorRepository.existsById(dataId)) { doctorRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("doctors", "doctor_name", dataId, cleanTitle, doctorRepository);
             } else if (type.contains("food")) {
-                if (dataId != null && foodProductRepository.existsById(dataId)) { foodProductRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("food_products", "product_name", dataId, cleanTitle, foodProductRepository);
             } else if (type.contains("hygiene")) {
-                if (dataId != null && hygieneProductRepository.existsById(dataId)) { hygieneProductRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("hygiene_products", "product_name", dataId, cleanTitle, hygieneProductRepository);
             } else if (type.contains("accessory") || type.contains("accessories")) {
-                if (dataId != null && accessoryRepository.existsById(dataId)) { accessoryRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("accessories", "business_name", dataId, cleanTitle, accessoryRepository);
             } else if (type.contains("marketresearch") || type.contains("research")) {
-                if (dataId != null && marketResearchRepository.existsById(dataId)) { marketResearchRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("market_research", "company", dataId, cleanTitle, marketResearchRepository);
             } else if (type.contains("ecosystem") || type.contains("hospital")) {
-                if (dataId != null && ecosystemRepository.existsById(dataId)) { ecosystemRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("veterinary_ecosystem", "hospital_name", dataId, cleanTitle, ecosystemRepository);
             } else if (type.contains("servicenetwork") || type.contains("service")) {
-                if (dataId != null && serviceNetworkRepository.existsById(dataId)) { serviceNetworkRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("service_network", "business_name", dataId, cleanTitle, serviceNetworkRepository);
             } else if (type.contains("welfarenetwork") || type.contains("welfare")) {
-                if (dataId != null && welfareNetworkRepository.existsById(dataId)) { welfareNetworkRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("welfare_network", "business_name", dataId, cleanTitle, welfareNetworkRepository);
             }
             // 4. Core Modules 9 - 16
             else if (type.contains("designer") || type.contains("fashiondesigner")) {
-                if (dataId != null && fashionDesignerRepository.existsById(dataId)) { fashionDesignerRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("fashion_designers", "designer_name", dataId, cleanTitle, fashionDesignerRepository);
             } else if (type.contains("lab") || type.contains("humanpetlab") || type.contains("diagnosticlab")) {
-                if (dataId != null && humanPetLabRepository.existsById(dataId)) { humanPetLabRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("human_pet_labs", "laboratory_name", dataId, cleanTitle, humanPetLabRepository);
             } else if (type.contains("institute") || type.contains("fashioninstitute")) {
-                if (dataId != null && fashionInstituteRepository.existsById(dataId)) { fashionInstituteRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("fashion_institutes", "institute_name", dataId, cleanTitle, fashionInstituteRepository);
             } else if (type.contains("courier") || type.contains("couriertier1")) {
-                if (dataId != null && courierTier1Repository.existsById(dataId)) { courierTier1Repository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("courier_tier_1", "company_name", dataId, cleanTitle, courierTier1Repository);
             } else if (type.contains("manufacturer") || type.contains("petmanufacturer")) {
-                if (dataId != null && petManufacturerRepository.existsById(dataId)) { petManufacturerRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("pet_manufacturers", "manufacturer_name", dataId, cleanTitle, petManufacturerRepository);
             } else if (type.contains("philippines") || type.contains("philippinespetproduct")) {
-                if (dataId != null && philippinesPetProductRepository.existsById(dataId)) { philippinesPetProductRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("philippines_pet_products", "product_name", dataId, cleanTitle, philippinesPetProductRepository);
             } else if (type.contains("livestock")) {
-                if (dataId != null && livestockRepository.existsById(dataId)) { livestockRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("livestock", "name", dataId, cleanTitle, livestockRepository);
             } else if (type.contains("poultry")) {
-                if (dataId != null && poultryRepository.existsById(dataId)) { poultryRepository.deleteById(dataId); deleted = true; }
+                deleted = deleteCoreRecord("poultry", "name", dataId, cleanTitle, poultryRepository);
             } else {
                 log.warn("Unknown dataType for automatic deletion: {}", dataType);
             }
@@ -557,6 +577,39 @@ public class AdminManagementController {
             log.error("Failed to automatically delete data [{}:{}]: {}", dataType, dataId, e.getMessage());
             return false;
         }
+    }
+
+    private <T> boolean deleteCoreRecord(String tableName, String nameCol, Long dataId, String cleanTitle, JpaRepository<T, Long> repo) {
+        if (dataId != null && dataId > 0 && repo.existsById(dataId)) {
+            repo.deleteById(dataId);
+            log.info("Deleted record from {} by ID {}", tableName, dataId);
+            return true;
+        }
+        if (cleanTitle != null && !cleanTitle.isBlank()) {
+            try {
+                String selectSql = "SELECT id FROM " + tableName + " WHERE " + nameCol + " = ? OR " + nameCol + " LIKE ? LIMIT 1";
+                List<Long> ids = jdbcTemplate.query(selectSql, (rs, rowNum) -> rs.getLong("id"), cleanTitle, "%" + cleanTitle + "%");
+                if (!ids.isEmpty()) {
+                    Long targetId = ids.get(0);
+                    repo.deleteById(targetId);
+                    log.info("Deleted record from {} by Name '{}' (resolved ID: {})", tableName, cleanTitle, targetId);
+                    return true;
+                }
+            } catch (Exception e) {
+                log.warn("Failed name-based deletion in table {}: {}", tableName, e.getMessage());
+            }
+        }
+        return false;
+    }
+
+    private String cleanTargetTitle(String rawTitle) {
+        if (rawTitle == null || rawTitle.isBlank()) return null;
+        String s = rawTitle.trim();
+        s = s.replaceAll("(?i)^are you sure you want to delete\\s+", "");
+        s = s.replaceAll("(?i)\\?\\s*this action cannot be undone\\.?$", "");
+        s = s.replaceAll("\\?+$", "");
+        s = s.replaceAll("^[\"']+|[\"']+$", "").trim();
+        return s.isBlank() ? null : s;
     }
 
     private String formatDuration(long seconds) {

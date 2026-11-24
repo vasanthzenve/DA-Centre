@@ -198,7 +198,12 @@ export const DynamicSidebarBuilderPage: React.FC = () => {
     } catch (err: any) {
       clearInterval(progressTimer);
       console.error('Analysis failed:', err);
-      toast.error(err.response?.data?.message || 'Failed to analyze spreadsheet structure.');
+      const errorMsg =
+        err.response?.data?.message ||
+        (err.code === 'ERR_NETWORK' || !err.response
+          ? 'Cannot connect to backend server. Please verify the Spring Boot service is running on port 8080.'
+          : err.message || 'Failed to analyze spreadsheet structure.');
+      toast.error(errorMsg);
     } finally {
       setIsAnalyzing(false);
     }

@@ -630,6 +630,9 @@ export const ServiceNetworkPage: React.FC = () => {
         onConfirm={handleDelete}
         title="Delete Service Provider"
         message={`Are you sure you want to delete ${deletingItem?.['Business Name'] || deletingItem?.businessName}?`}
+        dataType="ServiceNetwork"
+        dataId={deletingItem?.id}
+        dataTitle={deletingItem?.['Business Name'] || deletingItem?.businessName}
       />
 
       <BulkDeleteDialog

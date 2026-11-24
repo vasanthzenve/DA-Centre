@@ -713,6 +713,9 @@ export const FoodPage: React.FC = () => {
         onConfirm={handleDelete}
         title="Delete Food Product"
         message={`Are you sure you want to delete ${deletingItem?.['Product Name'] || deletingItem?.productName}?`}
+        dataType="FoodProduct"
+        dataId={deletingItem?.id}
+        dataTitle={deletingItem?.['Product Name'] || deletingItem?.productName}
       />
 
       <BulkDeleteDialog

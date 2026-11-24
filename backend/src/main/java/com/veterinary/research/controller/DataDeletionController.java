@@ -85,7 +85,7 @@ public class DataDeletionController {
         if (userId != null) {
             list = deletionRequestRepository.findByUserIdOrderByRequestedAtDesc(userId);
         } else {
-            list = deletionRequestRepository.findAllByOrderByRequestedAtDesc();
+            list = java.util.Collections.emptyList();
         }
         return ResponseEntity.ok(ApiResponse.success("Requests retrieved", list));
     }

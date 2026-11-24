@@ -92,12 +92,21 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       return;
     }
 
+    const cleanTitle =
+      dataTitle ||
+      message
+        .replace(/^Are you sure you want to delete\s+/i, '')
+        .replace(/\??\s*(?:This action cannot be undone\.?)?$/i, '')
+        .replace(/^["']+|["']+$/g, '')
+        .trim() ||
+      `${inferredType} Record`;
+
     setIsSubmittingToAdmin(true);
     try {
       await dataDeletionService.submitRequest({
         dataType: inferredType,
         dataId: dataId !== undefined && dataId !== null ? Number(dataId) : 0,
-        dataTitle: dataTitle || message || `${inferredType} Record`,
+        dataTitle: cleanTitle,
         reason: reason.trim(),
         userEmail: currentUser?.email || 'user@dacentre.com',
         userName: currentUser?.fullName || currentUser?.username || 'DA Centre User',

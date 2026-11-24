@@ -588,6 +588,9 @@ export const AccessoriesPage: React.FC = () => {
         onConfirm={handleDelete}
         title="Delete Accessory"
         message={`Are you sure you want to delete ${deletingItem?.['Business Name'] || deletingItem?.businessName}?`}
+        dataType="Accessory"
+        dataId={deletingItem?.id}
+        dataTitle={deletingItem?.['Business Name'] || deletingItem?.businessName}
       />
 
       <BulkDeleteDialog

@@ -747,6 +747,9 @@ export const DoctorsPage: React.FC = () => {
         onConfirm={handleDelete}
         title="Delete Doctor"
         message={`Are you sure you want to delete ${deletingItem?.['Doctor Name'] || deletingItem?.doctorName}?`}
+        dataType="Doctor"
+        dataId={deletingItem?.id}
+        dataTitle={deletingItem?.['Doctor Name'] || deletingItem?.doctorName}
       />
 
       <BulkDeleteDialog

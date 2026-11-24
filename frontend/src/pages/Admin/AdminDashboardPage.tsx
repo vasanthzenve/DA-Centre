@@ -235,9 +235,15 @@ export const AdminDashboardPage: React.FC = () => {
     setActionInProgressId(req.id);
     try {
       const res = await adminService.approveDataDeletion(req.id);
-      toast.success(
-        `Deletion Request #${req.id} approved! Target [${req.dataType} #${req.dataId}] automatically deleted from DA Centre.`
-      );
+      if (res.autoDeleted) {
+        toast.success(
+          `Deletion Request #${req.id} approved! Target [${req.dataType} #${req.dataId}] was permanently deleted from DA Centre.`
+        );
+      } else {
+        toast.info(
+          `Deletion Request #${req.id} approved, but target record was not found or already deleted from database.`
+        );
+      }
       window.dispatchEvent(new CustomEvent('dynamic-modules-updated'));
       await loadAllData();
     } catch (err: any) {
@@ -1281,9 +1287,13 @@ Portal Login: ${window.location.origin}/login
                               </span>
                             )}
                             {isApproved && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
+                              <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                del.autoDeleted !== false
+                                  ? 'bg-emerald-500/20 text-emerald-300'
+                                  : 'bg-amber-500/20 text-amber-300'
+                              }`}>
                                 <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                                AUTO-DELETED
+                                {del.autoDeleted !== false ? 'AUTO-DELETED' : 'APPROVED (NOT FOUND)'}
                               </span>
                             )}
                             {isRejected && (

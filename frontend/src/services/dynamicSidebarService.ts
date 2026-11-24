@@ -16,9 +16,7 @@ export const dynamicSidebarService = {
   analyzeFile: async (file: File): Promise<ExcelAnalysisResult> => {
     const formData = new FormData();
     formData.append('file', file);
-    const res = await apiClient.post<ApiResponse<ExcelAnalysisResult>>('/sidebar/analyze', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const res = await apiClient.post<ApiResponse<ExcelAnalysisResult>>('/sidebar/analyze', formData);
     return res.data.data;
   },
 
@@ -30,9 +28,7 @@ export const dynamicSidebarService = {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('request', JSON.stringify(payload));
-      const res = await apiClient.post<ApiResponse<SidebarModule>>('/sidebar/create-multipart', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const res = await apiClient.post<ApiResponse<SidebarModule>>('/sidebar/create-multipart', formData);
       return res.data.data;
     } else {
       const res = await apiClient.post<ApiResponse<SidebarModule>>('/sidebar/create', payload);
@@ -126,9 +122,7 @@ export const dynamicSidebarService = {
   replaceFile: async (id: number, file: File): Promise<SidebarModule> => {
     const formData = new FormData();
     formData.append('file', file);
-    const res = await apiClient.post<ApiResponse<SidebarModule>>(`/sidebar/modules/${id}/replace-file`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const res = await apiClient.post<ApiResponse<SidebarModule>>(`/sidebar/modules/${id}/replace-file`, formData);
     return res.data.data;
   },
 

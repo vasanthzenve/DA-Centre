@@ -771,6 +771,9 @@ export const WelfareNetworkPage: React.FC = () => {
         onConfirm={handleDelete}
         title="Delete Welfare Organization"
         message={`Are you sure you want to delete ${deletingItem?.['Business Name'] || deletingItem?.businessName}?`}
+        dataType="WelfareNetwork"
+        dataId={deletingItem?.id}
+        dataTitle={deletingItem?.['Business Name'] || deletingItem?.businessName}
       />
 
       <BulkDeleteDialog

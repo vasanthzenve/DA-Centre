@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.csv.DuplicateHeaderMode;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -82,6 +83,8 @@ public class DynamicSidebarServiceImpl implements DynamicSidebarService {
             } else {
                 return analyzeExcelFile(tempPath, originalName, file.getSize(), tempToken);
             }
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Failed to analyze uploaded file {}: {}", originalName, e.getMessage(), e);
             throw new RuntimeException("Failed to analyze spreadsheet structure: " + e.getMessage(), e);
@@ -110,20 +113,26 @@ public class DynamicSidebarServiceImpl implements DynamicSidebarService {
 
         try (Workbook workbook = WorkbookFactory.create(path.toFile())) {
             int numberOfSheets = workbook.getNumberOfSheets();
+            if (numberOfSheets == 0) {
+                throw new IllegalArgumentException("The uploaded Excel workbook contains no sheets.");
+            }
 
             for (int s = 0; s < numberOfSheets; s++) {
                 Sheet sheet = workbook.getSheetAt(s);
+                if (sheet == null) continue;
                 String sheetName = sheet.getSheetName();
 
                 Row headerRow = null;
                 int firstRowNum = sheet.getFirstRowNum();
                 int lastRowNum = sheet.getLastRowNum();
 
-                for (int r = firstRowNum; r <= lastRowNum; r++) {
-                    Row row = sheet.getRow(r);
-                    if (row != null && hasAnyNonEmptyCell(row)) {
-                        headerRow = row;
-                        break;
+                if (firstRowNum >= 0 && lastRowNum >= firstRowNum) {
+                    for (int r = firstRowNum; r <= lastRowNum; r++) {
+                        Row row = sheet.getRow(r);
+                        if (row != null && hasAnyNonEmptyCell(row)) {
+                            headerRow = row;
+                            break;
+                        }
                     }
                 }
 
@@ -132,6 +141,9 @@ public class DynamicSidebarServiceImpl implements DynamicSidebarService {
                 }
 
                 int totalColumns = headerRow.getLastCellNum();
+                if (totalColumns <= 0) {
+                    continue;
+                }
                 List<String> rawHeaders = new ArrayList<>();
                 Set<String> seenHeaders = new HashSet<>();
                 List<String> duplicateHeaders = new ArrayList<>();
@@ -221,6 +233,10 @@ public class DynamicSidebarServiceImpl implements DynamicSidebarService {
             }
         }
 
+        if (sheetList.isEmpty()) {
+            throw new IllegalArgumentException("The uploaded Excel workbook contains no readable data or valid rows.");
+        }
+
         return ExcelAnalysisDTO.builder()
                 .fileName(originalName)
                 .fileSize(fileSize)
@@ -236,8 +252,19 @@ public class DynamicSidebarServiceImpl implements DynamicSidebarService {
     private ExcelAnalysisDTO analyzeCsvFile(Path path, String originalName, long fileSize, String token) throws Exception {
         List<CSVRecord> records;
         try (Reader reader = new InputStreamReader(Files.newInputStream(path), StandardCharsets.UTF_8)) {
-            CSVParser parser = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).setTrim(true).build().parse(reader);
+            CSVParser parser = CSVFormat.DEFAULT.builder()
+                    .setHeader()
+                    .setSkipHeaderRecord(true)
+                    .setTrim(true)
+                    .setIgnoreEmptyLines(true)
+                    .setDuplicateHeaderMode(DuplicateHeaderMode.ALLOW_ALL)
+                    .setAllowMissingColumnNames(true)
+                    .build()
+                    .parse(reader);
             List<String> headers = parser.getHeaderNames();
+            if (headers == null || headers.isEmpty()) {
+                throw new IllegalArgumentException("The uploaded CSV file is empty or contains no headers.");
+            }
             records = parser.getRecords();
 
             int totalColumns = headers.size();
@@ -329,15 +356,18 @@ public class DynamicSidebarServiceImpl implements DynamicSidebarService {
     }
 
     private String inferDataType(List<String> values) {
-        if (values.isEmpty()) return "String";
+        if (values == null || values.isEmpty()) return "String";
         boolean allInt = true;
         boolean allDecimal = true;
         boolean allDate = true;
         boolean allBoolean = true;
+        int nonEmptyCount = 0;
 
         for (String val : values) {
+            if (val == null) continue;
             String v = val.trim();
             if (v.isEmpty()) continue;
+            nonEmptyCount++;
 
             if (allInt && !INT_PATTERN.matcher(v).matches()) allInt = false;
             if (allDecimal && !DECIMAL_PATTERN.matcher(v).matches() && !INT_PATTERN.matcher(v).matches()) allDecimal = false;
@@ -347,6 +377,7 @@ public class DynamicSidebarServiceImpl implements DynamicSidebarService {
             }
         }
 
+        if (nonEmptyCount == 0) return "String";
         if (allInt) return "Integer";
         if (allDecimal) return "Decimal";
         if (allBoolean) return "Boolean";
@@ -647,8 +678,19 @@ public class DynamicSidebarServiceImpl implements DynamicSidebarService {
 
     private int importCsvRecords(Long moduleId, Path path, List<ExcelAnalysisDTO.FieldAnalysisDTO> customFields) throws Exception {
         try (Reader reader = new InputStreamReader(Files.newInputStream(path), StandardCharsets.UTF_8)) {
-            CSVParser parser = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).setTrim(true).build().parse(reader);
+            CSVParser parser = CSVFormat.DEFAULT.builder()
+                    .setHeader()
+                    .setSkipHeaderRecord(true)
+                    .setTrim(true)
+                    .setIgnoreEmptyLines(true)
+                    .setDuplicateHeaderMode(DuplicateHeaderMode.ALLOW_ALL)
+                    .setAllowMissingColumnNames(true)
+                    .build()
+                    .parse(reader);
             List<String> headers = parser.getHeaderNames();
+            if (headers == null || headers.isEmpty()) {
+                return 0;
+            }
             int numCols = headers.size();
 
             List<SidebarField> fieldsToSave = new ArrayList<>();

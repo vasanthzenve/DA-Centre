@@ -922,6 +922,9 @@ export const VeterinaryEcosystemPage: React.FC = () => {
         onConfirm={handleDelete}
         title="Delete Hospital"
         message={`Are you sure you want to delete ${deletingItem?.['Hospital Name'] || deletingItem?.hospitalName}? This action cannot be undone.`}
+        dataType="VeterinaryEcosystem"
+        dataId={deletingItem?.id}
+        dataTitle={deletingItem?.['Hospital Name'] || deletingItem?.hospitalName}
       />
 
       {/* Bulk Delete */}
